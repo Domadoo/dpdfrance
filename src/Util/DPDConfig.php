@@ -109,6 +109,15 @@ class DPDConfig
                 $value = Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
         }
 
+        Hook::exec('actionGetDPDConfigAfter', [
+            'key' => $key,
+            'value' => &$value,
+            'idLang' => $idLang,
+            'idShopGroup' => $idShopGroup,
+            'idShop' => $idShop,
+            'default' => $default,
+        ]);
+
         return $value;
     }
 
