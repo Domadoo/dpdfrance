@@ -30,6 +30,7 @@ if (!defined('_PS_VERSION_')) {
 
 use Configuration;
 use Exception;
+use Hook;
 
 /**
  * Classe intermédiaire entre la classe Configuration de Prestashop et le module pour renvoyer
@@ -118,6 +119,8 @@ class DPDConfig
             default:
                 $value = Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
         }
+        
+        Hook::exec('actionGetDPDConfigAfter', ['key' => $key, 'value' => &$value]);
 
         return $value;
     }
