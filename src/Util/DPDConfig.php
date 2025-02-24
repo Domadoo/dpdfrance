@@ -26,6 +26,7 @@ namespace PrestaShop\Module\DPDFrance\Util;
 
 use Configuration;
 use Exception;
+use Hook;
 
 /**
  * Classe intermédiaire entre la classe Configuration de Prestashop et le module pour renvoyer
@@ -109,14 +110,7 @@ class DPDConfig
                 $value = Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
         }
 
-        Hook::exec('actionGetDPDConfigAfter', [
-            'key' => $key,
-            'value' => &$value,
-            'idLang' => $idLang,
-            'idShopGroup' => $idShopGroup,
-            'idShop' => $idShop,
-            'default' => $default,
-        ]);
+        Hook::exec('actionGetDPDConfigAfter', ['key' => $key, 'value' => &$value]);
 
         return $value;
     }
