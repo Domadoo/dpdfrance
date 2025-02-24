@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,11 +18,15 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 namespace PrestaShop\Module\DPDFrance\ExternalContentProvider;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Webtrace\clsTrace;
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Webtrace\ShipmentTrace;
@@ -113,12 +117,15 @@ class WebtraceProvider
         }
 
         try {
+            ini_set('soap.wsdl_cache_enabled', 1);
+            ini_set('soap.wsdl_cache_ttl', 1800); // 12 heures
+            ini_set('soap.wsdl_cache', WSDL_CACHE_MEMORY);
+
             $soapClient = new SoapClient(
                 $url,
                 [
                     'connection_timeout' => 5,
-                    'cache_wsdl'         => WSDL_CACHE_NONE,
-                    'exceptions'         => true,
+                    'exceptions' => true,
                 ]
             );
 
@@ -161,9 +168,9 @@ class WebtraceProvider
             // On convertit les paramètres pour qu'ils correspondent à ceux de l'ancien WS
             $convertedParams = [
                 'customer_center' => '3',
-                'customer'        => self::$auth->userid,
-                'password'        => self::$auth->password,
-                'shipmentnumber'  => $params['ShipmentNumber'],
+                'customer' => self::$auth->userid,
+                'password' => self::$auth->password,
+                'shipmentnumber' => $params['ShipmentNumber'],
             ];
 
             $response = self::$soapClient->getShipmentTrace($convertedParams);
@@ -203,14 +210,14 @@ class WebtraceProvider
         if (self::$isOld) {
             // On convertit les paramètres pour qu'ils correspondent à ceux de l'ancien WS
             $convertedParams = [
-                'customer_center'          => '3',
-                'customer'                 => self::$auth->userid,
-                'password'                 => self::$auth->password,
-                'reference'                => $params['Reference'],
+                'customer_center' => '3',
+                'customer' => self::$auth->userid,
+                'password' => self::$auth->password,
+                'reference' => $params['Reference'],
                 'shipping_customer_center' => $params['Customer']['centernumber'],
-                'shipping_customer'        => $params['Customer']['number'],
-                'searchmode'               => 'SearchMode_Equals',
-                'language'                 => $params['Language'],
+                'shipping_customer' => $params['Customer']['number'],
+                'searchmode' => 'SearchMode_Equals',
+                'language' => $params['Language'],
             ];
 
             $response = self::$soapClient->getShipmentTraceByReferenceGlobalWithCenterAsArray($convertedParams);
@@ -259,7 +266,7 @@ class WebtraceProvider
         $shipmentTraces = [];
         foreach ($shipmentTracesStd as $shipmentTraceStd) {
             $shipmentTraces[] = Transcriptor::convertTo(ShipmentTrace::class, $shipmentTraceStd, [
-                'Traces'   => Traces::class,
+                'Traces' => Traces::class,
                 'clsTrace' => clsTrace::class, // Cas où la clé clsTrace pointerait directement sur un objet clsTrace
             ]);
         }
@@ -277,5 +284,26 @@ class WebtraceProvider
         }
 
         return $shipmentTraces;
+    }
+
+    /**
+     * Vérification de la configuration client (old ou new) et test de connexion, method : GetLastTrace & getShipmentTrace
+     * @return string|void
+     */
+    public static function webserviceStatus()
+    {
+        if (self::$isOld) {
+            $oldParams = [
+                'customer_center' => '3',
+                'customer' => self::$auth->userid,
+                'password' => self::$auth->password,
+            ];
+
+            return self::$soapClient->getShipmentTrace($oldParams)->getShipmentTraceResult->LastError;
+        } else {
+            self::$soapClient->GetLastTrace([
+                'request' => '',
+            ]);
+        }
     }
 }

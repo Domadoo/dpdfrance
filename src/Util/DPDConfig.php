@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,15 +18,18 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 namespace PrestaShop\Module\DPDFrance\Util;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 use Configuration;
 use Exception;
-use Hook;
 
 /**
  * Classe intermédiaire entre la classe Configuration de Prestashop et le module pour renvoyer
@@ -36,6 +39,8 @@ class DPDConfig
 {
     /**
      * Renvoie un paramètre de configuration DPDFRANCE_ casté comme il convient
+     *  key : L'identifiant à trouver
+     *  default : Définit la valeur à renvoyer si l'identifiant n'est pas trouvé
      *
      * @param $key
      * @param $idLang
@@ -49,6 +54,7 @@ class DPDConfig
         switch ($key) {
             // Bool
             case 'DPDFRANCE_PARAM':
+            case 'DPDFRANCE_SHUFFLE_MODE':
             case 'DPDFRANCE_MARKETPLACE_MODE':
             case 'DPDFRANCE_DAY_DEFINITE_MODE':
             case 'DPDFRANCE_AD_VALOREM':
@@ -75,6 +81,8 @@ class DPDConfig
             // Float
             case 'DPDFRANCE_SUPP_ILES':
             case 'DPDFRANCE_SUPP_MONTAGNE':
+            case 'DPDFRANCE_SUPP_EUROPE':
+            case 'DPDFRANCE_SUPP_DOUANE':
                 $value = (float)Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
                 break;
             // Valeurs encryptées
@@ -83,6 +91,7 @@ class DPDConfig
             case 'DPDFRANCE_WEBTRACE_LOGIN':
             case 'DPDFRANCE_WEBTRACE_PASSWORD':
             case 'DPDFRANCE_GOOGLE_API_KEY':
+            case 'DPDFRANCE_RELAIS_KEY':
             case 'DPDFRANCE_LEADTIME_API_KEY':
                 $rawValue = DPDTools::decrypt(Configuration::get($key, $idLang, $idShopGroup, $idShop, $default));
                 $value = $rawValue === false ? '' : $rawValue;
@@ -110,15 +119,16 @@ class DPDConfig
                 $value = Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
         }
 
-        Hook::exec('actionGetDPDConfigAfter', ['key' => $key, 'value' => &$value]);
-
         return $value;
     }
 
     /**
      * Mettre à jour un paramètre de configuration DPDFRANCE_ casté comme il convient
      * Attention, on ne prend pas en compte les (array)$values liées au multilingue contrairement à la fonction
-     * Configuration::updateValue(). Ici un (array)$value sera transformé en (string).
+     * Configuration::updateValue(). Ici un (array)$value sera transformé en (string)
+     *  key : L'identifiant à mettre à jour
+     *  value : La nouvelle valeur de configuration
+     *  html : Définit si le html est autorisé en valeur
      *
      * @param $key
      * @param $value
@@ -136,10 +146,11 @@ class DPDConfig
         switch ($key) {
             // Bool (que l'on convertit en 0 ou 1)
             case 'DPDFRANCE_PARAM':
+            case 'DPDFRANCE_SHUFFLE_MODE':
             case 'DPDFRANCE_MARKETPLACE_MODE':
             case 'DPDFRANCE_DAY_DEFINITE_MODE':
             case 'DPDFRANCE_AD_VALOREM':
-            // Int
+                // Int
             case 'DPDFRANCE_AUTO_UPDATE':
             case 'DPDFRANCE_ETAPE_EXPEDITION':
             case 'DPDFRANCE_ETAPE_EXPEDIEE':
@@ -157,6 +168,8 @@ class DPDConfig
             // Float
             case 'DPDFRANCE_SUPP_ILES':
             case 'DPDFRANCE_SUPP_MONTAGNE':
+            case 'DPDFRANCE_SUPP_EUROPE':
+            case 'DPDFRANCE_SUPP_DOUANE':
                 $valueToUpdate = (float)str_replace(',', '.', $value);
                 break;
             // Valeurs encryptées
@@ -165,6 +178,7 @@ class DPDConfig
             case 'DPDFRANCE_WEBTRACE_LOGIN':
             case 'DPDFRANCE_WEBTRACE_PASSWORD':
             case 'DPDFRANCE_GOOGLE_API_KEY':
+            case 'DPDFRANCE_RELAIS_KEY':
             case 'DPDFRANCE_LEADTIME_API_KEY':
                 $valueToUpdate = !empty($value) ? DPDTools::encrypt($value) : '';
                 break;
@@ -202,42 +216,44 @@ class DPDConfig
 
     /**
      * Récupère les infos du service de livraison liées au service concerné (Relais, Predict, Classic)
-     *  - depot_code: n° agence
-     *  - shipper_code: n° de contrat
+     *  depot_code : n° agence
+     *  shipper_code : n° de contrat
      *
      * @param string $service
+     * @param int $idLang
+     * @param int $idShopGroup
      * @param int $idShop
      * @return array{
      *     'depot_code': int|null,
      *     'shipper_code': int|null,
      * }
      */
-    public static function getServiceLivraisonInfos(string $service, int $idShop): array
+    public static function getServiceLivraisonInfos(string $service, int $idLang, int $idShopGroup, int $idShop): array
     {
         switch ($service) {
             case 'HDP_PRE':
             case 'PRE':
                 $infos = [
-                    'depot_code'   => self::get('DPDFRANCE_PREDICT_DEPOT_CODE', null, null, $idShop),
-                    'shipper_code' => self::get('DPDFRANCE_PREDICT_SHIPPER_CODE', null, null, $idShop),
+                    'depot_code' => self::get('DPDFRANCE_PREDICT_DEPOT_CODE', $idLang, $idShopGroup, $idShop),
+                    'shipper_code' => self::get('DPDFRANCE_PREDICT_SHIPPER_CODE', $idLang, $idShopGroup, $idShop),
                 ];
                 break;
             case 'REL':
                 $infos = [
-                    'depot_code'   => self::get('DPDFRANCE_RELAIS_DEPOT_CODE', null, null, $idShop),
-                    'shipper_code' => self::get('DPDFRANCE_RELAIS_SHIPPER_CODE', null, null, $idShop),
+                    'depot_code' => self::get('DPDFRANCE_RELAIS_DEPOT_CODE', $idLang, $idShopGroup, $idShop),
+                    'shipper_code' => self::get('DPDFRANCE_RELAIS_SHIPPER_CODE', $idLang, $idShopGroup, $idShop),
                 ];
                 break;
             case 'HDP_CLA':
             case 'CLA':
                 $infos = [
-                    'depot_code'   => self::get('DPDFRANCE_CLASSIC_DEPOT_CODE', null, null, $idShop),
-                    'shipper_code' => self::get('DPDFRANCE_CLASSIC_SHIPPER_CODE', null, null, $idShop),
+                    'depot_code' => self::get('DPDFRANCE_CLASSIC_DEPOT_CODE', $idLang, $idShopGroup, $idShop),
+                    'shipper_code' => self::get('DPDFRANCE_CLASSIC_SHIPPER_CODE', $idLang, $idShopGroup, $idShop),
                 ];
                 break;
             default:
                 $infos = [
-                    'depot_code'   => null,
+                    'depot_code' => null,
                     'shipper_code' => null,
                 ];
         }
@@ -248,10 +264,13 @@ class DPDConfig
     /**
      * Le module dpdfrance est-il activé ?
      *
+     * @param int $idLang
+     * @param int $idShopGroup
+     * @param int $idShop
      * @return bool
      */
-    public static function isModuleEnabled()
+    public static function isModuleEnabled(int $idLang, int $idShopGroup, int $idShop)
     {
-        return self::get('DPDFRANCE_PARAM');
+        return self::get('DPDFRANCE_PARAM', $idLang, $idShopGroup, $idShop);
     }
 }

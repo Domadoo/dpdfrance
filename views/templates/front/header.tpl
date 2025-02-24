@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,13 +17,14 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
 <script type="text/javascript">
-    var dpdfranceRelaisCarrierId  = "{$dpdfrance_relais_carrier_id|escape:'javascript':'UTF-8'}";
-    var dpdfrancePredictCarrierId = "{$dpdfrance_predict_carrier_id|escape:'javascript':'UTF-8'}";
-    var dpdfrance_cart_id         = "{$dpdfrance_cart->id|escape:'javascript':'UTF-8'}";
-    var dpdfrance_base_dir        = "{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}";
+    let dpdfranceRelaisCarrierId = "{$dpdfrance_relais_carrier_id|escape:'javascript':'UTF-8'}";
+    let dpdfrancePredictCarrierId = "{$dpdfrance_predict_carrier_id|escape:'javascript':'UTF-8'}";
+    let dpdfrance_cart_id = "{$dpdfrance_cart->id|escape:'javascript':'UTF-8'}";
+    let dpdfrance_img_base_dir = '{$dpdfrance_img_base_dir|escape:'javascript':'UTF-8'}';
+    let dpdfrance_base_dir = "{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}";
 </script>

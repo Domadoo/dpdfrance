@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,13 +17,13 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
 <div class="card-block dpdfrance-shipping">
     {if $summary_shipping_address['type'] === 'relay'}
-        <h4 class="h5 black">{l s='Informations complémentaires de livraisons DPD France - Livraison en relais Pickup' mod='dpdfrance'}</h4>
+        <h4 class="h5 black">{l s='Additional DPD France delivery information - Pickup parcelshop delivery' mod='dpdfrance'}</h4>
         {$summary_shipping_address['name']|escape:'htmlall':'UTF-8'}
         <br>
         {$summary_shipping_address['customer']|escape:'htmlall':'UTF-8'}
@@ -32,7 +32,7 @@
         <br>
         {$summary_shipping_address['address']|escape:'htmlall':'UTF-8'}
     {else}
-        <h4 class="h5 black">{l s='Informations complémentaires de livraisons DPD France - Livraison à domicile Predict sur créneau horaire' mod='dpdfrance'}</h4>
+        <h4 class="h5 black">{l s='Additional DPD France delivery information - Time-slot Predict delivery' mod='dpdfrance'}</h4>
         {$summary_shipping_address['customer']|escape:'htmlall':'UTF-8'}
         <br>
         {$summary_shipping_address['phone']|escape:'htmlall':'UTF-8'}

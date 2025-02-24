@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,24 +17,43 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
 <script type="application/javascript">
-    var docPath = '{$docs_path|escape:'htmlall':'UTF-8'}';
+    let dpdfrance_img_base_dir = '{$dpdfrance_img_base_dir|escape:'javascript':'UTF-8'}';
+    let dpdfrance_base_dir = '{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}';
+    let docPath = '{$docs_path|escape:'javascript':'UTF-8'}';
+    let docGmapPath = '{$doc_gmap_path|escape:'javascript':'UTF-8'}';
+    let newCarrierId = '{$new_carrier_id|escape:'javascript':'UTF-8'}';
+
+    if (typeof shopContext === 'undefined') {
+        var shopContext = '{$shop_context|escape:'javascript':'UTF-8'}';
+    }
+    if (typeof shopGroupId === 'undefined') {
+        var shopGroupId = '{$shop_group_id|escape:'javascript':'UTF-8'}';
+    }
+    if (typeof shopId === 'undefined') {
+        var shopId = '{$shop_id|escape:'javascript':'UTF-8'}';
+    }
+
     {if isset($dpdfrance_dev_badge)}
-        var dpdfrance_dev_badge = '{$dpdfrance_dev_badge}';
+    let dpdfrance_dev_badge = '{$dpdfrance_dev_badge|escape:'javascript':'UTF-8'}';
     {/if}
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         if (typeof dpdfrance_dev_badge !== 'undefined') {
             $('h2.page-title').append(dpdfrance_dev_badge);
         }
     })
 </script>
 
+<h2>{l s='DPD France' mod='dpdfrance'}</h2>
+
 <form action="{$form_submit_url|escape:'htmlall':'UTF-8'}" method="post">
+    <!-- Prevent implicit submission of the form -->
+    <button type="submit" disabled style="display: none" aria-hidden="true"></button>
     <fieldset>
         <legend>
             <img src="{$img_path|escape:'htmlall':'UTF-8'}admin/admin.png" alt="" title=""/>
@@ -338,16 +357,6 @@
         <div id="options_supp" style="display:none;">
             <br/><span class="section_title_alt">{l s='Advanced settings' mod='dpdfrance'}</span><br/><br/>
 
-            <label>{l s='DPD Relais WebService URL' mod='dpdfrance'}</label>
-            <div class="margin-form">
-                <input type="text" size="48" name="mypudo_url" value="{$mypudo_url|escape:'htmlall':'UTF-8'}"/>
-                <br/>
-                <a class="main-red" style="font-size: 12px;" href="javascript:void(0)"
-                   onclick="DPDFranceHandleOpenModuleDoc(true)">
-                    {l s='Caution! Critical setting' mod='dpdfrance'}
-                </a>
-            </div>
-
             <label>{l s='Coastal islands & Corsica overcost' mod='dpdfrance'}</label>
             <div class="margin-form">
                 <input type="text" size="3" name="supp_iles" value="{$supp_iles|escape:'htmlall':'UTF-8'}"/>
@@ -360,20 +369,70 @@
                 {l s=' € (-1 to disable delivery to these areas)' mod='dpdfrance'}
             </div>
             <br/>
+            <label>{l s='European islands overcost' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <input type="text" size="3" name="supp_europe" value="{$supp_europe|escape:'htmlall':'UTF-8'}"/>
+                {l s=' € (-1 to disable delivery to these areas)' mod='dpdfrance'}
+            </div>
+            <br/>
+            <label>{l s='Customs surcharges' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <input type="text" size="3" name="supp_douane" value="{$supp_douane|escape:'htmlall':'UTF-8'}"/>
+                {l s=' € (-1 to disable delivery to these areas)' mod='dpdfrance'}
+            </div>
+            <br/>
             <label>{l s='Google Maps API Key' mod='dpdfrance'}</label>
             <div class="margin-form">
                 {if empty($dpdfrance_google)}
-                    <input type="text" size="48" name="google_api_key" placeholder="{l s='Clé api privé' mod='dpdfrance'}"/>
+                    <input type="text" size="48" name="google_api_key"
+                           placeholder="{l s='Clé api privé' mod='dpdfrance'}"/>
                 {else}
-                    <input type="text" size="48" name="google_api_key" class="dpd_configured" placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
+                    <input type="text" size="48" name="google_api_key" class="dpd_configured"
+                           placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
                 {/if}
                 <br/>
-                <a href="https://console.developers.google.com/flows/enableapi?apiid=maps_backend,geocoding_backend,directions_backend,distance_matrix_backend,elevation_backend,places_backend&keyType=CLIENT_SIDE&reusekey=true"
-                   target="_blank">
+                <a class="main-red" href="javascript:void(0)"
+                   onclick="DPDFranceHandleOpenGmapDoc()">
                     {l s='Click here to retrieve your Google API Key' mod='dpdfrance'}
                 </a>
             </div>
             <br/>
+
+            <br/><br/>
+            <span>
+                <strong>{l s='DPD Relais WebService config' mod='dpdfrance'}</strong>
+            </span>
+            <br/><br/>
+
+            <label>{l s='DPD Relais WebService URL' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <input type="text" size="48" name="mypudo_url" value="{$mypudo_url|escape:'htmlall':'UTF-8'}"/>
+                <br/>
+                <a class="main-red" href="javascript:void(0)"
+                   onclick="DPDFranceHandleOpenModuleDoc(true)">
+                    {l s='Caution! Critical setting' mod='dpdfrance'}
+                </a>
+            </div>
+            <label>{l s='Password DPD Relais' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                {if empty($dpdfrance_relais)}
+                    <input type="password" size="48" name="relais_key"
+                           placeholder="{l s='Mot de passe privé' mod='dpdfrance'}"/>
+                {else}
+                    <input type="password" size="48" name="relais_key" class="dpd_configured"
+                           placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
+                {/if}
+            </div>
+            <label>{l s='Webservice status' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <div class="button dpd_status" onclick="dpdFranceWebserviceStatus('wp');">
+                    <i class="icon-wifi"></i>
+                </div>
+                <div id="dpd_wp_status_msg">{l s='Connection to the webservice is OK' mod='dpdfrance'}</div>
+                <div id="dpd_wp_status_msg_alert">{l s='Connection to the webservice is not OK' mod='dpdfrance'}</div>
+                <br/><br/>
+                {l s='Please submit your configuration before proceeding with a test' mod='dpdfrance'}
+            </div>
 
             <br/><br/>
             <span>
@@ -398,10 +457,22 @@
                 <label>{l s='Clé API Lead Time' mod='dpdfrance'}</label>
                 <div class="margin-form">
                     {if empty($dpdfrance_leadtime)}
-                        <input type="text" size="48" name="leadtime_api_key" placeholder="{l s='Clé api privé' mod='dpdfrance'}"/>
+                        <input type="text" size="48" name="leadtime_api_key"
+                               placeholder="{l s='Clé api privé' mod='dpdfrance'}"/>
                     {else}
-                        <input type="text" size="48" name="leadtime_api_key" class="dpd_configured" placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
+                        <input type="text" size="48" name="leadtime_api_key" class="dpd_configured"
+                               placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
                     {/if}
+                </div>
+                <label>{l s='Webservice status' mod='dpdfrance'}</label>
+                <div class="margin-form">
+                    <div class="button dpd_status" onclick="dpdFranceWebserviceStatus('wl');">
+                        <i class="icon-wifi"></i>
+                    </div>
+                    <div id="dpd_wl_status_msg">{l s='Connection to the webservice is OK' mod='dpdfrance'}</div>
+                    <div id="dpd_wl_status_msg_alert">{l s='Connection to the webservice is not OK' mod='dpdfrance'}</div>
+                    <br/><br/>
+                    {l s='Please submit your configuration before proceeding with a test' mod='dpdfrance'}
                 </div>
             </div>
 
@@ -417,10 +488,22 @@
             <div class="margin-form">
                 {* On n'affiche pas les mots de passe enregistrés dans les formulaires *}
                 {if empty($dpdfrance_api)}
-                    <input type="password" size="48" name="api_password" placeholder="{l s='Mot de passe privé' mod='dpdfrance'}"/>
+                    <input type="password" size="48" name="api_password"
+                           placeholder="{l s='Mot de passe privé' mod='dpdfrance'}"/>
                 {else}
-                    <input type="password" size="48" name="api_password" class="dpd_configured" placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
+                    <input type="password" size="48" name="api_password" class="dpd_configured"
+                           placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
                 {/if}
+            </div>
+            <label>{l s='Webservice status' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <div class="button dpd_status" onclick="dpdFranceWebserviceStatus('we');">
+                    <i class="icon-wifi"></i>
+                </div>
+                <div id="dpd_we_status_msg">{l s='Connection to the webservice is OK' mod='dpdfrance'}</div>
+                <div id="dpd_we_status_msg_alert">{l s='Connection to the webservice is not OK' mod='dpdfrance'}</div>
+                <br/><br/>
+                {l s='Please submit your configuration before proceeding with a test' mod='dpdfrance'}
             </div>
 
             <br/><br/>
@@ -434,10 +517,22 @@
             <label>{l s='Password Webtrace' mod='dpdfrance'}</label>
             <div class="margin-form">
                 {if empty($dpdfrance_webtrace)}
-                    <input type="password" size="48" name="webtrace_password" placeholder="{l s='Mot de passe privé' mod='dpdfrance'}"/>
+                    <input type="password" size="48" name="webtrace_password"
+                           placeholder="{l s='Mot de passe privé' mod='dpdfrance'}"/>
                 {else}
-                    <input type="password" size="48" name="webtrace_password" class="dpd_configured" placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
+                    <input type="password" size="48" name="webtrace_password" class="dpd_configured"
+                           placeholder="{l s='Information prise en compte' mod='dpdfrance'}"/>
                 {/if}
+            </div>
+            <label>{l s='Webservice status' mod='dpdfrance'}</label>
+            <div class="margin-form">
+                <div class="button dpd_status" onclick="dpdFranceWebserviceStatus('ww');">
+                    <i class="icon-wifi"></i>
+                </div>
+                <div id="dpd_ww_status_msg">{l s='Connection to the webservice is OK' mod='dpdfrance'}</div>
+                <div id="dpd_ww_status_msg_alert">{l s='Connection to the webservice is not OK' mod='dpdfrance'}</div>
+                <br/><br/>
+                {l s='Please submit your configuration before proceeding with a test' mod='dpdfrance'}
             </div>
 
             <div class="text-center">
@@ -529,6 +624,23 @@
                 <br/>
             </div>
 
+            <label>{l s='Activate shuffle mode for the auto update' mod='dpdfrance'}<br/></label>
+            <div class="margin-form">
+                <select name="shuffle_mode">
+                    {foreach from=$option_shuffle item=option key=key}
+                        {if $key == $shuffle_mode}
+                            <option value="{$key|escape:'htmlall':'UTF-8'}"
+                                    selected>{$option|escape:'htmlall':'UTF-8'}</option>
+                        {else}
+                            <option value="{$key|escape:'htmlall':'UTF-8'}">{$option|escape:'htmlall':'UTF-8'}</option>
+                        {/if}
+                    {/foreach}
+                </select>
+                <br/>
+                {l s='Orders will be processed randomly in order to facilitate the auto update' mod='dpdfrance'}
+                <br/>
+            </div>
+
             <label>{l s='Allow management of non-DPD orders' mod='dpdfrance'}<br/></label>
             <div class="margin-form">
                 <select name="marketplace_mode">
@@ -542,6 +654,26 @@
                     {/foreach}
                 </select>
                 <br/>{l s='All orders will be manageable regardless of the carrier, useful when using marketplace connectors.' mod='dpdfrance'}
+                <br/>
+            </div>
+
+            <label>{l s='Management of payment methods for the marketplace' mod='dpdfrance'}<br/></label>
+            <div class="margin-form">
+                <select class="dpd_multiselect" name="marketplace_payments[]" multiple>
+                    {foreach from=$option_marketplace_payments item=option}
+                        {if isset($option_marketplace_payments_selected)}
+                            {if in_array($option, $option_marketplace_payments_selected)}
+                                <option class="dpd_multiselect_option"
+                                        value="{$option|escape:'htmlall':'UTF-8'}">{$option|escape:'htmlall':'UTF-8'}</option>
+                            {else}
+                                <option value="{$option|escape:'htmlall':'UTF-8'}">{$option|escape:'htmlall':'UTF-8'}</option>
+                            {/if}
+                        {else}
+                            <option value="{$option|escape:'htmlall':'UTF-8'}">{$option|escape:'htmlall':'UTF-8'}</option>
+                        {/if}
+                    {/foreach}
+                </select>
+                <br/>{l s='Allows to improve the display of all orders independently of the carrier, useful when using marketplace connectors. Each selected method will have its orders considered as linked to the marketplace.' mod='dpdfrance'}
                 <br/>
             </div>
 
@@ -658,7 +790,7 @@
                     {l s='Previous' mod='dpdfrance'}
                 </a>
                 <a size="6" class="button" href="javascript:void(0)"
-                    onclick="$('#onglet6').click();">
+                   onclick="$('#onglet6').click();">
                     {l s='Next' mod='dpdfrance'}
                 </a>
             </div>

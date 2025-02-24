@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -31,29 +31,29 @@ function upgrade_module_6_1_1()
     $dpd->installConfigDB();
 
     $fieldsDescription = [
-        'id_order'               => ['null' => false, 'type' => 'int(10) unsigned'],
-        'id_order_dpd'           => ['null' => false, 'type' => 'varchar(50)'],
-        'id_retour_order_dpd'    => ['null' => false, 'type' => 'varchar(20)'],
+        'id_order' => ['null' => false, 'type' => 'int(10) unsigned'],
+        'id_order_dpd' => ['null' => false, 'type' => 'varchar(50)'],
+        'id_retour_order_dpd' => ['null' => false, 'type' => 'varchar(20)'],
         'id_shipment_number_dpd' => ['null' => false, 'type' => 'varchar(50)'],
-        'error_message'          => ['null' => true, 'type' => 'text'],
+        'error_message' => ['null' => true, 'type' => 'text'],
         'override_return_street' => ['null' => true, 'type' => 'varchar(35)'],
-        'override_return_zip'    => ['null' => true, 'type' => 'varchar(10)'],
-        'override_return_city'   => ['null' => true, 'type' => 'varchar(35)'],
-        'override_return_phone'  => ['null' => true, 'type' => 'varchar(30)'],
-        'return_print'           => ['null' => true, 'type' => 'varchar(30)'],
+        'override_return_zip' => ['null' => true, 'type' => 'varchar(10)'],
+        'override_return_city' => ['null' => true, 'type' => 'varchar(35)'],
+        'override_return_phone' => ['null' => true, 'type' => 'varchar(30)'],
+        'return_print' => ['null' => true, 'type' => 'varchar(30)'],
     ];
 
     $fields = [
-        'id_order'               => true,
-        'id_order_dpd'           => true,
-        'id_retour_order_dpd'    => true,
+        'id_order' => true,
+        'id_order_dpd' => true,
+        'id_retour_order_dpd' => true,
         'id_shipment_number_dpd' => true,
-        'error_message'          => true,
+        'error_message' => true,
         'override_return_street' => true,
-        'override_return_zip'    => true,
-        'override_return_city'   => true,
-        'override_return_phone'  => true,
-        'return_print'           => true,
+        'override_return_zip' => true,
+        'override_return_city' => true,
+        'override_return_phone' => true,
+        'return_print' => true,
     ];
     $sql = 'DESCRIBE  ' . _DB_PREFIX_ . 'dpdfrance_order';
     $results = DB::getInstance()->executeS($sql);

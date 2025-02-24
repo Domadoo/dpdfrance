@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,11 +18,15 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 namespace PrestaShop\Module\DPDFrance\ExternalContentProvider;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 use DateTimeImmutable;
 
@@ -67,8 +71,8 @@ class LeadtimeProvider
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => json_encode($params),
                 CURLOPT_HTTPHEADER => [
-                    'apiKey: '.$leadtimeKey,
-                    'Content-Type: application/json'
+                    'apiKey: ' . $leadtimeKey,
+                    'Content-Type: application/json',
                 ],
             ));
 
@@ -86,6 +90,57 @@ class LeadtimeProvider
         }
 
         curl_close($leadtimeCurl);
+
         return $leadtime;
+    }
+
+    /**
+     * Vérification de la configuration client et test de connexion, method : getDelayBetweenZipCodes
+     * @param string $url
+     *
+     * @param string $leadtimeKey
+     *
+     * @return bool
+     */
+    public static function webserviceStatus(string $url, string $leadtimeKey)
+    {
+        $leadtimeCurl = curl_init();
+        $state = false;
+        $leadtimeParams = [
+            '' => '',
+        ];
+
+        try {
+            curl_setopt_array($leadtimeCurl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($leadtimeParams),
+                CURLOPT_HTTPHEADER => [
+                    'apiKey: ' . $leadtimeKey,
+                    'Content-Type: application/json',
+                ],
+            ));
+
+            $leadtimeResponse = curl_exec($leadtimeCurl);
+
+            // If curl_errno return 0 then we have no error
+            if (curl_errno($leadtimeCurl) === 0) {
+                $leadtimeResponse = json_decode($leadtimeResponse);
+                if (isset($leadtimeResponse->message) && preg_match('/apiErrorList/', $leadtimeResponse->message)) {
+                    $state = true;
+                }
+            }
+        } catch (\Exception $e) {
+            //$errorMessage = $e->getMessage();
+        }
+
+        curl_close($leadtimeCurl);
+
+        return $state;
     }
 }

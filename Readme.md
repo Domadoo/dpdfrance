@@ -2,7 +2,7 @@
 
 ## English (Français ci-dessous)
 
-**By choosing DPD you will enjoy innovative delivery solutions: home appointment with Predict, to more than 8.500 Pickup points with DPD Pickup, at your customers’ workplaces with DPD CLASSIC and worldwide with the DPD CLASSIC Europe & Intercontinental services.**
+**By choosing DPD you will enjoy innovative delivery solutions: home appointment with Predict, to more than 80,000 pick-up points in France and Europe, at your customers’ workplaces with DPD CLASSIC and worldwide with the DPD CLASSIC Europe & Intercontinental services.**
 
 The **DPD France shipping extension** allows you to add new shipping methods on your website, with powerful functionalities :
 
@@ -26,7 +26,7 @@ For technical support on this extension, or to become an DPD customer, please [c
 
 ## Français
 
-**En choisissant DPD, bénéficiez de solutions de livraison innovantes : à domicile sur rendez-vous avec notre offre Predict, vers plus de 8 500 relais Pickup avec DPD Pickup, sur lieu de travail avec DPD CLASSIC, et dans le monde entier avec les services DPD CLASSIC Europe & Intercontinental.**
+**En choisissant DPD, bénéficiez de solutions de livraison innovantes : à domicile sur rendez-vous avec notre offre Predict, vers plus de 80 000 relais Pickup en France et en Europe, sur lieu de travail avec DPD CLASSIC, et dans le monde entier avec les services DPD CLASSIC Europe & Intercontinental.**
 
 Le **module de livraison DPD France** vous permet d'ajouter de nouveaux modes de livraison à votre site marchand avec de grandes fonctionnalités :
 

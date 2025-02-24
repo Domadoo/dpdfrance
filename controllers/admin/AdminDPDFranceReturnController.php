@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -60,7 +60,6 @@ class AdminDPDFranceReturnController extends ModuleAdminController
      */
     public function initToolBarTitle()
     {
-        // TODO #44900 Voir tous les $this->l du présent Controller
         $this->toolbar_title[] = $this->l('Orders');
         $this->toolbar_title[] = $this->l('DPD return management');
     }
@@ -76,7 +75,7 @@ class AdminDPDFranceReturnController extends ModuleAdminController
         $pathUri = $this->module->getPathUri();
 
         $css = [
-            $pathUri . 'views/js/admin/jquery/plugins/fancybox/jquery.fancybox.css',
+            $pathUri . 'views/css/admin/jquery.fancybox.css',
             $pathUri . 'views/css/admin/AdminDPDFrance.css',
         ];
 
@@ -93,6 +92,11 @@ class AdminDPDFranceReturnController extends ModuleAdminController
 
     public function renderView()
     {
+        // Prepare the module context if the shop has the multistore enabled
+        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $currentShopId = $shopInfo['currentShopId'];
+        $currentShopGroupId = $shopInfo['currentShopGroupId'];
+
         $this->fields_form[]['form'] = [];
         $helper = $this->buildHelper();
         $msg = '';
@@ -109,7 +113,12 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                 if (!empty($colis)) {
                     $this->pdfMerger = new DPDPdfMerger();
                     foreach ($colis as $colisId) {
-                        if (DPDConfig::get('DPDFRANCE_FORMAT_MOD') === 'pdf') {
+                        if (DPDConfig::get(
+                                'DPDFRANCE_FORMAT_MOD',
+                                $this->context->language->id,
+                                $currentShopGroupId,
+                                $currentShopId
+                            ) === 'pdf') {
                             $hasCreate[] = $this->generatedLabelReturn($this->getDpdOrder($colisId));
                         } else {
                             $hasCreate[] = $this->generatedLabelReturn($this->getDpdOrder($colisId), $zplPathReturn);
@@ -117,14 +126,43 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                         }
                     }
 
-                    if (DPDConfig::get('DPDFRANCE_FORMAT_MOD') !== 'pdf') {
+                    if (DPDConfig::get(
+                            'DPDFRANCE_FORMAT_MOD',
+                            $this->context->language->id,
+                            $currentShopGroupId,
+                            $currentShopId
+                        ) !== 'pdf') {
                         if (count($zplPathReturn) > 0) {
-                            if (DPDConfig::get('DPDFRANCE_FORMAT_CONNECT') === 'ip') {
-                                if (($conn = fsockopen(DPDConfig::get('DPDFRANCE_PRINTER_IP'), DPDConfig::get('DPDFRANCE_PRINTER_PORT'), $errno, $errstr)) === false) {
+                            if (DPDConfig::get(
+                                    'DPDFRANCE_FORMAT_CONNECT',
+                                    $this->context->language->id,
+                                    $currentShopGroupId,
+                                    $currentShopId
+                                ) === 'ip') {
+                                if (($conn = fsockopen(
+                                        DPDConfig::get(
+                                            'DPDFRANCE_PRINTER_IP',
+                                            $this->context->language->id,
+                                            $currentShopGroupId,
+                                            $currentShopId
+                                        ),
+                                        DPDConfig::get(
+                                            'DPDFRANCE_PRINTER_PORT',
+                                            $this->context->language->id,
+                                            $currentShopGroupId,
+                                            $currentShopId
+                                        ),
+                                        $errno,
+                                        $errstr
+                                    )) === false) {
                                     echo 'Connection Failed' . $errno . $errstr;
                                 }
                                 foreach ($zplPathReturn as $path) {
-                                    fputs($conn, Tools::file_get_contents($path), Tools::strlen(Tools::file_get_contents($path)));
+                                    fputs(
+                                        $conn,
+                                        Tools::file_get_contents($path),
+                                        Tools::strlen(Tools::file_get_contents($path))
+                                    );
                                 }
                                 fclose($conn);
                                 foreach ($zplPathReturn as $path) {
@@ -140,7 +178,12 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                     }
                     file_put_contents(DPDFRANCE_MODULE_PATH . '/session.txt', 'finish');
 
-                    if (DPDConfig::get('DPDFRANCE_FORMAT_MOD') === 'pdf') {
+                    if (DPDConfig::get(
+                            'DPDFRANCE_FORMAT_MOD',
+                            $this->context->language->id,
+                            $currentShopGroupId,
+                            $currentShopId
+                        ) === 'pdf') {
                         $this->pdfMerger->merge('browser', 'label.pdf');
                         foreach (scandir($this->dirPdf) as $file) {
                             $file = $this->dirPdf . '/' . $file;
@@ -158,8 +201,14 @@ class AdminDPDFranceReturnController extends ModuleAdminController
 
         // Display section
         // Error message if shipper info is missing
-        if (!DPDConfig::isModuleEnabled()) {
-            echo '<div class="warnmsg">' . $this->l('Warning! Your DPD Depot code and contract number are missing. You must configure the DPD module in order to use the export and tracking features.') . '</div>';
+        if (!DPDConfig::isModuleEnabled(
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        )) {
+            echo '<div class="warnmsg">' . $this->l(
+                    'Warning! Your DPD Depot code and contract number are missing. You must configure the DPD module in order to use the export and tracking features.'
+                ) . '</div>';
             exit;
         }
         // Calls function to get orders
@@ -175,10 +224,20 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             foreach ($colis as $dpdId) {
                 $order = new Order($dpdId['id_order']);
                 $address = new Address($order->id_address_delivery);
-                $service = DPDTools::getService($order, Context::getContext()->language->id);
+                $service = DPDTools::getService(
+                    $order,
+                    $this->context->language->id,
+                    (int)$order->id_shop_group,
+                    (int)$order->id_shop
+                );
                 $code_pays_dest = DPDTools::getIsoCodebyIdCountry($address->id_country);
 
-                $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos($service, (int)$order->id_shop);
+                $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos(
+                    $service,
+                    $this->context->language->id,
+                    (int)$order->id_shop_group,
+                    (int)$order->id_shop
+                );
 
                 switch ($service) {
                     case 'HDP_PRE':
@@ -200,7 +259,7 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                     case 'REL':
                         $type = 'Relais<img src="../modules/dpdfrance/views/img/admin/service_relais.png" title="Relais" alt="relais"/>';
                         $relay_id = '';
-                        preg_match('/P\d{5}/i', $address->company, $matches, PREG_OFFSET_CAPTURE);
+                        preg_match('/(P|[a-z]{2})\d{5}/i', $address->company, $matches, PREG_OFFSET_CAPTURE);
                         if ($matches) {
                             $relay_id = $matches[0][0];
                         }
@@ -231,8 +290,18 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                 $current_state_id = $order->current_state;
 
                 switch ((int)$current_state_id) {
-                    case DPDConfig::get('DPDFRANCE_ETAPE_LIVRE', null, null, (int)$order->id_shop):
-                    case DPDConfig::get('DPDFRANCE_ETAPE_EXPEDIEE', null, null, (int)$order->id_shop):
+                    case DPDConfig::get(
+                        'DPDFRANCE_ETAPE_LIVRE',
+                        $this->context->language->id,
+                        (int)$order->id_shop_group,
+                        (int)$order->id_shop
+                    ):
+                    case DPDConfig::get(
+                        'DPDFRANCE_ETAPE_EXPEDIEE',
+                        $this->context->language->id,
+                        (int)$order->id_shop_group,
+                        (int)$order->id_shop
+                    ):
                         $dernierstatutcolis = '<img src="../modules/dpdfrance/views/img/admin/tracking.png" title="Trace du colis"/>';
                         break;
                     default:
@@ -241,20 +310,26 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                 }
 
                 $order_info[] = [
-                    'id'                   => $dpdId['id_order_dpd'],
-                    'id_order'             => $dpdId['id_order'],
-                    'reference'            => $order->reference,
-                    'type'                 => $type,
-                    'date'                 => date('d/m/Y H:i:s', strtotime($order->date_add)),
-                    'nom'                  => $address->lastname . ' ' . $address->firstname,
-                    'address'              => $address_delivery,
-                    'shipper_code'         => $serviceLivraisonInfos['shipper_code'],
-                    'depot_code'           => sprintf('%03d', $serviceLivraisonInfos['depot_code']),
+                    'id' => $dpdId['id_order_dpd'],
+                    'id_order' => $dpdId['id_order'],
+                    'reference' => $order->reference,
+                    'type' => $type,
+                    'date' => date('d/m/Y H:i:s', strtotime($order->date_add)),
+                    'nom' => $address->lastname . ' ' . $address->firstname,
+                    'address' => $address_delivery,
+                    'shipper_code' => $serviceLivraisonInfos['shipper_code'],
+                    'depot_code' => sprintf('%03d', $serviceLivraisonInfos['depot_code']),
                     'dernier_statut_colis' => $dernierstatutcolis,
-                    'poids'                => $order->getTotalWeight(),
-                    'labelprint'           => (!is_null($dpdId['return_print']) ? $dpdId['return_print'] : false),
-                    'weightunit'           => Configuration::get('PS_WEIGHT_UNIT', null, null, (int)$order->id_shop),
-                    'arrived'              => $dpdId['arrived'],
+                    'poids' => $order->getTotalWeight(),
+                    'labelprint' => (!is_null($dpdId['return_print']) ? $dpdId['return_print'] : false),
+                    'weightunit' => Configuration::get(
+                        'PS_WEIGHT_UNIT',
+                        $this->context->language->id,
+                        (int)$order->id_shop_group,
+                        (int)$order->id_shop,
+                        false
+                    ),
+                    'arrived' => $dpdId['arrived'],
                 ];
             }
         } else {
@@ -264,14 +339,27 @@ class AdminDPDFranceReturnController extends ModuleAdminController
         // Assign smarty variables
         $this->context->smarty->assign(
             [
-                'msg'                     => $msg,
-                'stream'                  => DPDTools::getDPDRssInfos(),
-                'token'                   => $this->token,
-                'order_info'              => $order_info,
-                'dpdfrance_retour_option' => DPDConfig::get('DPDFRANCE_RETOUR_OPTION', null, null, (int)Context::getContext()->shop->id),
-                'dpdfrance_mode_format'   => DPDConfig::get('DPDFRANCE_FORMAT_MOD', null, null, (int)Context::getContext()->shop->id),
-                'dpdfrance_base_dir'      => __PS_BASE_URI__ . 'modules/' . Tools::strtolower($this->identifier),
-                'dpdfrance_token'         => Tools::hash('dpdfrance/ajax'),
+                'shop_context' => Shop::getContext(),
+                'shop_group_id' => $this->context->shop->getContextShopGroupID(),
+                'shop_id' => $this->context->shop->getContextShopID(),
+                'msg' => $msg,
+                'stream' => DPDTools::getDPDRssInfos(),
+                'token' => $this->token,
+                'order_info' => $order_info,
+                'dpdfrance_retour_option' => DPDConfig::get(
+                    'DPDFRANCE_RETOUR_OPTION',
+                    $this->context->language->id,
+                    $currentShopGroupId,
+                    $currentShopId
+                ),
+                'dpdfrance_mode_format' => DPDConfig::get(
+                    'DPDFRANCE_FORMAT_MOD',
+                    $this->context->language->id,
+                    $currentShopGroupId,
+                    $currentShopId
+                ),
+                'dpdfrance_base_dir' => Context::getContext()->link->getModuleLink('dpdfrance', 'ajax'),
+                'dpdfrance_token' => Tools::hash('dpdfrance/ajax'),
             ]
         );
 
@@ -313,45 +401,99 @@ class AdminDPDFranceReturnController extends ModuleAdminController
      */
     public function generatedLabelReturn($dpdOrder, &$zplPathReturn = [])
     {
-        $eprintUser = DPDConfig::get('DPDFRANCE_API_LOGIN');
-        $eprintPassword = DPDConfig::get('DPDFRANCE_API_PASSWORD');
+        // Prepare the module context if the shop has the multistore enabled
+        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $currentShopId = $shopInfo['currentShopId'];
+        $currentShopGroupId = $shopInfo['currentShopGroupId'];
+
+        $eprintUser = DPDConfig::get(
+            'DPDFRANCE_API_LOGIN',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+        $eprintPassword = DPDConfig::get(
+            'DPDFRANCE_API_PASSWORD',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
 
         if (
             EprintProvider::initSoapClient($eprintUser, $eprintPassword, DPDFRANCE_DEV_USE_WS_TEST) === false
-            && DPDConfig::get('DPDFRANCE_FORMAT_MOD') === 'pdf'
+            && DPDConfig::get(
+                'DPDFRANCE_FORMAT_MOD',
+                $this->context->language->id,
+                $currentShopGroupId,
+                $currentShopId
+            ) === 'pdf'
         ) {
             return false;
         }
 
-        $print_format = DPDConfig::get('DPDFRANCE_FORMAT_PRINT');
+        $print_format = DPDConfig::get(
+            'DPDFRANCE_FORMAT_PRINT',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
         $order = new Order($dpdOrder['id_order']);
-        $service = DPDTools::getService($order, Context::getContext()->language->id);
+        $service = DPDTools::getService(
+            $order,
+            $this->context->language->id,
+            (int)$order->id_shop_group,
+            (int)$order->id_shop
+        );
 
-        $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos($service, (int)$order->id_shop);
+        $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos(
+            $service,
+            $this->context->language->id,
+            (int)$order->id_shop_group,
+            (int)$order->id_shop
+        );
 
         $getRetourLabel = [
-            'countrycode'     => 250,
-            'centernumber'    => $serviceLivraisonInfos['depot_code'],
+            'countrycode' => 250,
+            'centernumber' => $serviceLivraisonInfos['depot_code'],
             'customer_number' => $serviceLivraisonInfos['shipper_code'],
-            'parcelnumber'    => $dpdOrder['id_retour_order_dpd'],
+            'parcelnumber' => $dpdOrder['id_retour_order_dpd'],
         ];
 
-        if (DPDConfig::get('DPDFRANCE_FORMAT_MOD') != 'pdf') {
+        if (DPDConfig::get(
+                'DPDFRANCE_FORMAT_MOD',
+                $this->context->language->id,
+                (int)$order->id_shop_group,
+                (int)$order->id_shop
+            ) != 'pdf') {
             $getRetourLabel['labelType'] = [
-                'type' => Tools::strtoupper(DPDConfig::get('DPDFRANCE_FORMAT_MOD')),
+                'type' => Tools::strtoupper(
+                    DPDConfig::get(
+                        'DPDFRANCE_FORMAT_MOD',
+                        $this->context->language->id,
+                        (int)$order->id_shop_group,
+                        (int)$order->id_shop
+                    )
+                ),
             ];
         }
 
         //__Override by new DATA
         // ? Add receiveradress countryPrefix by country ? Is it always FR ?
-        if (!is_null($dpdOrder['override_return_street']) && !is_null($dpdOrder['override_return_zip']) && !is_null($dpdOrder['override_return_city']) && !is_null($dpdOrder['override_return_phone'])) {
+        if (!is_null($dpdOrder['override_return_street']) && !is_null($dpdOrder['override_return_zip']) && !is_null(
+                $dpdOrder['override_return_city']
+            ) && !is_null($dpdOrder['override_return_phone'])) {
             $getRetourLabel['receiveraddress'] = [
-                'name'          => DPDConfig::get('DPDFRANCE_NOM_EXP'),
+                'name' => DPDConfig::get(
+                    'DPDFRANCE_NOM_EXP',
+                    $this->context->language->id,
+                    (int)$order->id_shop_group,
+                    (int)$order->id_shop
+                ),
                 'countryPrefix' => 'FR',
-                'zipCode'       => $dpdOrder['override_return_zip'],
-                'city'          => $dpdOrder['override_return_city'],
-                'street'        => $dpdOrder['override_return_street'],
-                'phoneNumber'   => $dpdOrder['override_return_phone'],
+                'zipCode' => $dpdOrder['override_return_zip'],
+                'city' => $dpdOrder['override_return_city'],
+                'street' => $dpdOrder['override_return_street'],
+                'phoneNumber' => $dpdOrder['override_return_phone'],
             ];
         }
         if ($print_format === 'a6') {
@@ -378,12 +520,19 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             'id_order = ' . (int)$dpdOrder['id_order']
         );
 
-        if (DPDConfig::get('DPDFRANCE_FORMAT_MOD') === 'pdf') {
+        if (DPDConfig::get(
+                'DPDFRANCE_FORMAT_MOD',
+                $this->context->language->id,
+                (int)$order->id_shop_group,
+                (int)$order->id_shop
+            ) === 'pdf') {
             if (empty($this->pdfMerger)) {
                 $this->pdfMerger = new DPDPdfMerger();
             }
             foreach ($labels as $labelKey => $label) {
-                $pdfPath = $this->dirPdf . "/Label_" . md5(preg_replace('/[^a-zA-Z0-9\-_]/i', '', $dpdOrder['id_retour_order_dpd'])) . '_' . (int)preg_replace('/[^a-zA-Z0-9\-_]/i', '', $labelKey) . ".pdf";
+                $pdfPath = $this->dirPdf . "/Label_" . md5(
+                        preg_replace('/[^a-zA-Z0-9\-_]/i', '', $dpdOrder['id_retour_order_dpd'])
+                    ) . '_' . (int)preg_replace('/[^a-zA-Z0-9\-_]/i', '', $labelKey) . ".pdf";
                 file_put_contents($pdfPath, $label->label);
                 $this->pdfMerger->addPdf($pdfPath);
             }
@@ -391,7 +540,18 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             return true;
         } else {
             foreach ($labels as $labelKey => $label) {
-                $path = $this->dirPdf . '/Label_' . md5(preg_replace('/[^a-zA-Z0-9\-_]/i', '', $dpdOrder['id_retour_order_dpd'])) . '_' . (int)preg_replace('/[^a-zA-Z0-9\-_]/i', '', $labelKey) . '.' . preg_replace('/[^a-zA-Z0-9\-_]/i', '', Configuration::get('DPDFRANCE_FORMAT_MOD'));
+                $path = $this->dirPdf . '/Label_' . md5(
+                        preg_replace('/[^a-zA-Z0-9\-_]/i', '', $dpdOrder['id_retour_order_dpd'])
+                    ) . '_' . (int)preg_replace('/[^a-zA-Z0-9\-_]/i', '', $labelKey) . '.' . preg_replace(
+                        '/[^a-zA-Z0-9\-_]/i',
+                        '',
+                        DPDConfig::get(
+                            'DPDFRANCE_FORMAT_MOD',
+                            $this->context->language->id,
+                            (int)$order->id_shop_group,
+                            (int)$order->id_shop
+                        )
+                    );
                 file_put_contents($path, $label->label);
                 $zplPathReturn[] = $path;
             }
@@ -401,7 +561,7 @@ class AdminDPDFranceReturnController extends ModuleAdminController
     }
 
     /**
-     * Get colis delivered whit return accept
+     * Get delivered parcels with return accept
      * @return array
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -409,6 +569,13 @@ class AdminDPDFranceReturnController extends ModuleAdminController
      */
     public function getColis()
     {
+        // Prepare the module context if the shop has the multistore enabled
+        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $isContextShop = $shopInfo['isContextShop'];
+        $contextShopId = $shopInfo['shopId'];
+        $currentShopId = $shopInfo['currentShopId'];
+        $currentShopGroupId = $shopInfo['currentShopGroupId'];
+
         $listColisValid = [];
         $sql = new DbQuery();
         $sql->select('*')
@@ -418,30 +585,76 @@ class AdminDPDFranceReturnController extends ModuleAdminController
         $listColis = Db::getInstance()->executeS($sql);
 
         // Initialisation Webtrace
-        $webtraceUser = DPDConfig::get('DPDFRANCE_WEBTRACE_LOGIN');
-        $webtracePassword = DPDConfig::get('DPDFRANCE_WEBTRACE_PASSWORD');
+        $webtraceUser = DPDConfig::get(
+            'DPDFRANCE_WEBTRACE_LOGIN',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+        $webtracePassword = DPDConfig::get(
+            'DPDFRANCE_WEBTRACE_PASSWORD',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
         WebtraceProvider::initSoapClient($webtraceUser, $webtracePassword, DPDFRANCE_DEV_USE_WS_TEST);
 
         // Initialisation Eprint
-        $eprintUser = DPDConfig::get('DPDFRANCE_API_LOGIN');
-        $eprintPassword = DPDConfig::get('DPDFRANCE_API_PASSWORD');
-        EprintProvider::initSoapClient($eprintUser, $eprintPassword, DPDFRANCE_DEV_USE_WS_TEST);
+        $eprintUser = DPDConfig::get(
+            'DPDFRANCE_API_LOGIN',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+        $eprintPassword = DPDConfig::get(
+            'DPDFRANCE_API_PASSWORD',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+        EprintProvider::initSoapClient($eprintUser, $eprintPassword, DPDFRANCE_DEV_USE_WS_TEST);$myOrders = [];
 
         foreach ($listColis as $colis) {
             $order = new Order($colis['id_order']);
-            $service = DPDTools::getService($order, Context::getContext()->language->id);
 
-            $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos($service, (int)$order->id_shop);
+            // Exclude orders that do not have a corresponding shop id or shop group id
+            if ($isContextShop) {
+                // Context is a shop
+                if ($contextShopId !== (int)$order->id_shop || Shop::getGroupFromShop($contextShopId) !== (int)$order->id_shop_group) {
+                    continue;
+                }
+            } else {
+                // Context is all shops or a group of shops
+                foreach ($contextShopId as $shopId) {
+                    if ($shopId !== (int)$order->id_shop || Shop::getGroupFromShop($shopId) !== (int)$order->id_shop_group) {
+                        break;
+                    }
+                }
+            }
+
+            $service = DPDTools::getService(
+                $order,
+                $this->context->language->id,
+                (int)$order->id_shop_group,
+                (int)$order->id_shop
+            );
+
+            $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos(
+                $service,
+                $this->context->language->id,
+                (int)$order->id_shop_group,
+                (int)$order->id_shop
+            );
 
             $shipmentTraceParams = [
-                'Customer'       => [
+                'Customer' => [
                     'centernumber' => $serviceLivraisonInfos['depot_code'],
-                    'number'       => $serviceLivraisonInfos['shipper_code'],
-                    'countrycode'  => '250',
+                    'number' => $serviceLivraisonInfos['shipper_code'],
+                    'countrycode' => '250',
                 ],
-                'Language'       => 'F',
+                'Language' => 'F',
                 'ShipmentNumber' => $colis['id_shipment_number_dpd'],
-                'GetImages'      => false,
+                'GetImages' => false,
             ];
 
             try {
@@ -456,14 +669,14 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             $shipmentTraces = $shipmentTracesResult[0]->Traces;
             $shipmentNumberRetour = $shipmentTracesResult[0]->ShipmentNumber_Retour;
             $shipmentReturn = [
-                'Customer'       => [
+                'Customer' => [
                     'centernumber' => $serviceLivraisonInfos['depot_code'],
-                    'number'       => $serviceLivraisonInfos['shipper_code'],
-                    'countrycode'  => '250',
+                    'number' => $serviceLivraisonInfos['shipper_code'],
+                    'countrycode' => '250',
                 ],
-                'Language'       => 'F',
+                'Language' => 'F',
                 'ShipmentNumber' => $shipmentNumberRetour,
-                'GetImages'      => false,
+                'GetImages' => false,
             ];
 
             try {
@@ -477,9 +690,9 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             $returnTraces = $returnShipmentTraces[0]->Traces;
 
             $retourShipmentData = [
-                'countrycode'           => 250,
-                'centernumber'          => $serviceLivraisonInfos['depot_code'],
-                'customer_number'       => $serviceLivraisonInfos['shipper_code'],
+                'countrycode' => 250,
+                'centernumber' => $serviceLivraisonInfos['depot_code'],
+                'customer_number' => $serviceLivraisonInfos['shipper_code'],
                 'original_parcelnumber' => $colis['id_order_dpd'],
             ];
 
@@ -507,7 +720,7 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                     }
 
                     foreach ($clsTraces as $clsTrace) {
-                        if ($clsTrace instanceof clsTrace && in_array($clsTrace->StatusNumber,  ['40' , '400' , '271'])) {
+                        if ($clsTrace instanceof clsTrace && in_array($clsTrace->StatusNumber, ['40', '400', '271'])) {
                             $colis['arrived'] = true;
                             break;
                         }
@@ -521,7 +734,10 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                     }
 
                     foreach ($returnClsTraces as $returnClsTrace) {
-                        if ($returnClsTrace instanceof clsTrace && in_array($returnClsTrace->StatusNumber,  ['40' , '400' , '271'])) {
+                        if ($returnClsTrace instanceof clsTrace && in_array(
+                                $returnClsTrace->StatusNumber,
+                                ['40', '400', '271']
+                            )) {
                             $show = false;
                         }
                     }

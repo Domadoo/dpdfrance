@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,11 +18,15 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 namespace PrestaShop\Module\DPDFrance\ExternalContentProvider;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 use SimpleXMLElement;
 use SoapClient;
@@ -58,12 +62,15 @@ class PudoProvider
         }
 
         try {
+            ini_set('soap.wsdl_cache_enabled', 1);
+            ini_set('soap.wsdl_cache_ttl', 1800); // 12 heures
+            ini_set('soap.wsdl_cache', WSDL_CACHE_MEMORY);
+
             $soapClient = new SoapClient(
                 $url,
                 [
                     'connection_timeout' => 5,
-                    'cache_wsdl'         => WSDL_CACHE_NONE,
-                    'exceptions'         => true,
+                    'exceptions' => true,
                 ]
             );
         } catch (SoapFault $exception) {
@@ -105,5 +112,24 @@ class PudoProvider
             ->any;
 
         return new SimpleXMLElement($pudoList);
+    }
+
+    /**
+     * Vérification de la configuration client et test de connexion, method : getPudoList
+     * @param string $key
+     * @return mixed
+     */
+    public static function webserviceStatus(string $key)
+    {
+        return self::$soapClient->getPudoList([
+            'key' => $key,
+            'zipCode' => '0000',
+            'countrycode' => 'FR',
+            'requestID' => '1234',
+            'request_id' => '1234',
+            'date_from' => '0123456789',
+        ])
+            ->GetPudoListResult
+            ->any;
     }
 }

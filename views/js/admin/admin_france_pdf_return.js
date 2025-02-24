@@ -4,7 +4,7 @@
  * @requires jQuery v1.6 or later
  *
  *
- * Copyright 2021 DPD France
+ * Copyright 2024 DPD France
  *
  */
 $(document).ready(function () {
@@ -34,15 +34,15 @@ $(document).ready(function () {
         } else {
             $.ajax(
                 {
-                    url    : dpdfrance_base_dir + '/ajax.php',
-                    method : 'post',
-                    data   : {
+                    url: dpdfrance_base_dir,
+                    method: 'post',
+                    data: {
                         'action_ajax_dpdfrance': 'setAddressOrder',
-                        'order'                : orderId,
-                        'street'               : $('#street').val(),
-                        'zip'                  : $('#zip').val(),
-                        'city'                 : $('#city').val(),
-                        'phone'                : $('#phone').val()
+                        'order': orderId,
+                        'street': $('#street').val(),
+                        'zip': $('#zip').val(),
+                        'city': $('#city').val(),
+                        'phone': $('#phone').val()
                     },
                     success: function (data) {
                         data = $.parseJSON(data);
@@ -76,11 +76,14 @@ $(document).ready(function () {
 
         $.ajax(
             {
-                url    : dpdfrance_base_dir + '/ajax.php',
-                method : 'post',
-                data   : {
+                url: dpdfrance_base_dir,
+                method: 'post',
+                data: {
                     'action_ajax_dpdfrance': 'getAddressOrder',
-                    'order'                : orderId
+                    'order': orderId,
+                    'shop_context': shopContext,
+                    'shop_group_id': shopGroupId,
+                    'shop_id': shopId,
                 },
                 success: function (data) {
                     data = $.parseJSON(data);
@@ -115,13 +118,13 @@ $(document).ready(function () {
 
         $.ajax(
             {
-                type    : 'GET',
-                url     : dpdfrance_base_dir + '/ajax.php',
-                data    : {
+                type: 'GET',
+                url: dpdfrance_base_dir,
+                data: {
                     'action_ajax_dpdfrance': 'ajaxRefreshListPdf'
                 },
                 dataType: 'json',
-                success : function (data) {
+                success: function (data) {
                     data = eval(data);
                     if (data == "true") {
                         location.reload();
@@ -131,7 +134,7 @@ $(document).ready(function () {
                         }, 1000);
                     }
                 },
-                error   : function (data) {
+                error: function (data) {
                     setTimeout(function () {
                         refreshPage();
                     }, 1000);

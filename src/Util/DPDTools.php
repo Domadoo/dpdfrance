@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -41,12 +41,11 @@ use Order;
 use PrestaShopDatabaseException;
 use PrestaShopExceptionCore;
 use Tools;
+use Shop;
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\LeadtimeProvider;
 
 class DPDTools
 {
-    // TODO #44717
-
     // CUSTOM REQUEST
 
     const PASSTRHOUGHT_CEDI = false;
@@ -354,6 +353,296 @@ class DPDTools
         '85350',
     ];
 
+    /**
+     * Liste des pays soumis à la douane
+     */
+    const CUSTOMS_ZONE = [
+        'ZA',
+        'AL',
+        'DZ',
+        'AD',
+        'AO',
+        'AI',
+        'AG',
+        'SA',
+        'AR',
+        'AM',
+        'AW',
+        'AU',
+        'AZ',
+        'BS',
+        'BH',
+        'BD',
+        'BB',
+        'BZ',
+        'BJ',
+        'BM',
+        'BT',
+        'BO',
+        'BA',
+        'BW',
+        'BR',
+        'BN',
+        'BF',
+        'BI',
+        'KH',
+        'CM',
+        'CA',
+        'CV',
+        'CL',
+        'CN',
+        'CY',
+        'CO',
+        'KM',
+        'CG',
+        'CD',
+        'KR',
+        'CR',
+        'CI',
+        'DJ',
+        'EG',
+        'AE',
+        'ER',
+        'US',
+        'ET',
+        'GA',
+        'GM',
+        'GE',
+        'GH',
+        'GI',
+        'GD',
+        'GL',
+        'GP',
+        'GU',
+        'GT',
+        'GG',
+        'GN',
+        'GQ',
+        'GW',
+        'GY',
+        'GF',
+        'HT',
+        'HN',
+        'HK',
+        'CX',
+        'NF',
+        'KY',
+        'CC',
+        'CK',
+        'FO',
+        'FJ',
+        'MP',
+        'MH',
+        'SB',
+        'TC',
+        'VI',
+        'VG',
+        'IN',
+        'ID',
+        'IQ',
+        'IS',
+        'IL',
+        'JM',
+        'JP',
+        'JE',
+        'JO',
+        'KZ',
+        'KE',
+        'KG',
+        'KI',
+        'KW',
+        'DM',
+        'LA',
+        'LS',
+        'LB',
+        'LR',
+        'LY',
+        'LI',
+        'MO',
+        'MK',
+        'MG',
+        'MY',
+        'MW',
+        'MV',
+        'ML',
+        'MT',
+        'MA',
+        'MQ',
+        'MU',
+        'MR',
+        'YT',
+        'MX',
+        'FM',
+        'MD',
+        'MN',
+        'ME',
+        'MS',
+        'MZ',
+        'NA',
+        'NR',
+        'NP',
+        'NI',
+        'NE',
+        'NG',
+        'NO',
+        'NC',
+        'NZ',
+        'OM',
+        'UG',
+        'UZ',
+        'PK',
+        'PW',
+        'PA',
+        'PG',
+        'PY',
+        'PE',
+        'PH',
+        'PF',
+        'PR',
+        'QA',
+        'DO',
+        'RE',
+        'GB',
+        'RW',
+        'BL',
+        'MF',
+        'PM',
+        'VC',
+        'KN',
+        'LC',
+        'SV',
+        'WS',
+        'AS',
+        'SM',
+        'ST',
+        'SN',
+        'RS',
+        'SC',
+        'SL',
+        'SG',
+        'SO',
+        'LK',
+        'CH',
+        'SR',
+        'SZ',
+        'TW',
+        'TZ',
+        'TD',
+        'PS',
+        'TH',
+        'TL',
+        'TG',
+        'TO',
+        'TT',
+        'TN',
+        'TR',
+        'TV',
+        'UY',
+        'VU',
+        'VA',
+        'VN',
+        'ZM',
+        'ZW',
+    ];
+
+    /**
+     * Liste des codes postaux en zone Iles européennes
+     */
+    const EUROPE_ZONE = [
+        '30123',
+        '18010',
+        '18020',
+        '18030',
+        '18040',
+        '18050',
+        '70017',
+        '70100',
+        '70200',
+        '70300',
+        '70400',
+        '72051',
+        '72053',
+        '72056',
+        '72057',
+        '72058',
+        '72059',
+        '72100',
+        '72300',
+        '72400',
+        '73014',
+        '73100',
+        '73200',
+        '73400',
+        '74000',
+        '74100',
+        '80100',
+        '81113',
+        '81200',
+        '81300',
+        '81401',
+        '82100',
+        '82104',
+        '82200',
+        '82300',
+        '83104',
+        '83200',
+        '84002',
+        '84003',
+        '84005',
+        '84010',
+        '84100',
+        '84201',
+        '84302',
+        '84401',
+        '84500',
+        '84600',
+        '84702',
+        '84801',
+        '84804',
+        '85002',
+        '85109',
+        '85111',
+        '85200',
+        '85300',
+        '85303',
+        '85401',
+        '85500',
+        '85600',
+        '85700',
+        '85800',
+    ];
+
+    // ISO CODE
+
+    /**
+     * Liste des codes pays autorisés au relais export
+     */
+    const RELAIS_EXPORT_COUNTRIES = [
+        'FR',
+        'DE',
+        'ES',
+        'IT',
+        'PL',
+        'SI',
+        'AT',
+        'EE',
+        'LV',
+        'PT',
+        'SE',
+        'BE',
+        'FI',
+        'LT',
+        'CZ',
+        'HR',
+        'HU',
+        'LU',
+        'RO',
+        'DK',
+        'IE',
+        'NL',
+        'SK',
+    ];
+
     // FUNCTIONS
 
     /**
@@ -396,7 +685,7 @@ class DPDTools
             return false;
         }
 
-        // Affectation de la zone France au pays France
+        // Affectation de la zone France au pays France si activé (en France ce pays est activé par défaut)
         foreach ($resCreatedFranceZone as $zone) {
             $sqlSetCountryZoneFrance = 'UPDATE ' . _DB_PREFIX_ . 'country SET id_zone=' . (int)$zone . ' WHERE iso_code ="FR" and active = 1';
             if (Db::getInstance()->execute($sqlSetCountryZoneFrance) === false) {
@@ -454,13 +743,60 @@ class DPDTools
     }
 
     /**
-     * Check the GSM validity
-     * @param string $telDest
+     * Check if the defined weight unit is recognized for the DAT file
+     * @param int $idLang
+     * @param int $idShopGroup
+     * @param int $idShop
      * @return bool
      */
-    public static function checkGsmValidity(string $telDest): bool
+    public static function checkWeightUnit(int $idLang, int $idShopGroup, int $idShop): bool
     {
-        $firstCheck = preg_match('/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}$/im', $telDest) ? $telDest : false;
+        $weight = strtolower(
+            trim(
+                Configuration::get(
+                    'PS_WEIGHT_UNIT',
+                    $idLang,
+                    $idShopGroup,
+                    $idShop,
+                    false
+                )
+            )
+        );
+
+        if (!in_array(
+            $weight,
+            [
+                'g',
+                'gr',
+                'gram',
+                'grams',
+                'gramme',
+                'grammes',
+                'kg',
+                'kilogram',
+                'kilograms',
+                'kilogramme',
+                'kilogrammes',
+            ]
+        )) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check the GSM validity
+     * @param string $telDest
+     * @param bool $isMobile
+     * @return bool
+     */
+    public static function checkGsmValidity(string $telDest, bool $isMobile = true): bool
+    {
+        $firstCheck = preg_match(
+            '/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}$/im',
+            $telDest
+        ) ? $telDest : false;
 
         if ($firstCheck === false) {
             return false;
@@ -483,6 +819,7 @@ class DPDTools
             '456789',
         ];
         $telDestPattern = substr($telDest, -6);
+        $telFranceRegex = $isMobile ? '/^((\+33|0033|0)[67])(?:[ _.-]?(\d{2})){4}$/' : '/^((\+33|0033|0)[1234579])(?:[ _.-]?(\d{2})){4}$/';
 
         if (
             !in_array($telDestPattern, $gsmPatterns) &&
@@ -494,7 +831,7 @@ class DPDTools
                 || preg_match('/^(\+|00)45(\s?\d{8,9})$/', $telDest) // Denmark
                 || preg_match('/^(\+|00)372(\s?\d{7,8})$/', $telDest) // Estonia
                 || preg_match('/^(\+|00)358(\s?\d{5,12})$/', $telDest) // Finland
-                || preg_match('/^((\+33|0033|0)[67])(?:[ _.-]?(\d{2})){4}$/', $telDest) // France
+                || preg_match($telFranceRegex, $telDest) // France
                 || preg_match('/^(\+|00)49(\s?\d{10,11})$/', $telDest) // Germany
                 || preg_match('/^(\+|00)36(\s?\d{8,9})$/', $telDest) // Hungary
                 || preg_match('/^(\+|00)353(\s?\d{8,9})$/', $telDest) // Ireland
@@ -559,44 +896,46 @@ class DPDTools
      *
      * @param Order $order
      * @param int $idLang
+     * @param int $idShopGroup
+     * @param int $idShop
      * @return string
      */
-    public static function getService($order, int $idLang): string
+    public static function getService($order, int $idLang, int $idShopGroup, int $idShop): string
     {
         $orderIdCarrierQuery = new DbQuery();
         $orderIdCarrierQuery->select('id_carrier')
-                            ->from('orders')
-                            ->where('id_order = ' . (int)$order->id);
+            ->from('orders')
+            ->where('id_order = ' . (int)$order->id);
         $orderIdCarrier = (int)Db::getInstance()->getValue($orderIdCarrierQuery);
 
         $carrierList = [
             'DPDFRANCE_CLASSIC_CARRIER_LOG' => 'CLA',
             'DPDFRANCE_PREDICT_CARRIER_LOG' => 'PRE',
-            'DPDFRANCE_RELAIS_CARRIER_LOG'  => 'REL',
+            'DPDFRANCE_RELAIS_CARRIER_LOG' => 'REL',
         ];
 
         foreach ($carrierList as $carrierListLog => $deliveryService) {
             if (self::checkDeliveryService(
                 $orderIdCarrier,
-                DPDConfig::get($carrierListLog, null, null, $idLang)
+                DPDConfig::get($carrierListLog, $idLang, $idShopGroup, $idShop)
             )) {
                 return $deliveryService;
             }
         }
 
         //  Gestion des commandes avec un transporteur hors_dpd
-        //  - Si id_carrier n'est pas dans les carrier_logs alors on identifie une commande comme hors_dpd
-        //  - Si on trouve un numéro de téléphone associé à cette commande alors on associe le transporteur Predict, sinon on associe le transporteur Classic
+        //  - Si id_carrier n'est pas dans les carrier_logs alors, on identifie une commande comme hors_dpd
+        //  - Si on trouve un numéro de téléphone associé à cette commande alors, on associe le transporteur Predict, sinon on associe le transporteur Classic
         $orderPhoneNumber = self::getPhoneNumberFromDpdShipping((int)$order->id_cart, (int)$order->id_carrier);
 
         if (empty($orderPhoneNumber) === true) {
-            $address_invoice = new Address($order->id_address_invoice, Context::getContext()->language->id);
-            $address_delivery = new Address($order->id_address_delivery, Context::getContext()->language->id);
+            $address_invoice = new Address($order->id_address_invoice, $idLang);
+            $address_delivery = new Address($order->id_address_delivery, $idLang);
             $orderPhoneNumber = self::getPhoneNumberFromAddress($address_invoice, $address_delivery);
             unset($address_invoice, $address_delivery);
             if (!empty($orderPhoneNumber)) {
                 $orderPhoneNumber = preg_replace('/\s+/', '', $orderPhoneNumber);
-                // Si le numéro de téléphone est incorrect alors on assigne le transporteur Classic
+                // Si le numéro de téléphone est incorrect alors, on assigne le transporteur Classic
                 if (self::checkGsmValidity($orderPhoneNumber)) {
                     return 'HDP_PRE';
                 } else {
@@ -622,6 +961,7 @@ class DPDTools
         $phoneQuery->select('gsm_dest')
             ->from('dpdfrance_shipping')
             ->where('id_cart = ' . $idCart . ' AND id_carrier = ' . $idCarrier);
+
         return Db::getInstance()->getValue($phoneQuery);
     }
 
@@ -670,8 +1010,8 @@ class DPDTools
     {
         $sqlQuery = new DbQuery();
         $sqlQuery->select('iso_code')
-                 ->from('country')
-                 ->where('id_country = ' . (int)$idCountry);
+            ->from('country')
+            ->where('id_country = ' . (int)$idCountry);
         $result = Db::getInstance('_PS_USE_SQL_SLAVE_')->getRow($sqlQuery);
         $isoPS = [
             'DE',
@@ -750,15 +1090,25 @@ class DPDTools
             'CH',
         ];
 
-        return in_array($result['iso_code'], $isoPS, true) ? // * IF IN ARRAY of the result (only one result) has one of the Prestashop ISO
-            str_replace($isoPS, $isoEP, $result['iso_code']) : // * THEN Replace the Prestashop ISO Format TO DPD Station ISO Format (EUROPE)
-            str_replace($result['iso_code'], 'INT', $result['iso_code']);   // * ELSE Replace the Prestashop ISO Format TO 'INT' (intercontinental)
+        return in_array(
+            $result['iso_code'],
+            $isoPS,
+            true
+        ) ? // * IF IN ARRAY of the result (only one result) has one of the Prestashop ISO
+            str_replace(
+                $isoPS,
+                $isoEP,
+                $result['iso_code']
+            ) : // * THEN Replace the Prestashop ISO Format TO DPD Station ISO Format (EUROPE)
+            str_replace(
+                $result['iso_code'],
+                'INT',
+                $result['iso_code']
+            );   // * ELSE Replace the Prestashop ISO Format TO 'INT' (intercontinental)
     }
 
-    //TODO : Refacto function to merge getCargoFilteredIsoCodeByIdCountry() & getIsoCodeByIdCountry() together => seems possible
-
     /**
-     * Converts country ISO code to DPD Station format
+     * Converts country ISO code to CNS format
      *
      * @param int $idCountry
      * @return array|string|string[]
@@ -767,8 +1117,8 @@ class DPDTools
     {
         $sqlQuery = new DbQuery();
         $sqlQuery->select('iso_code')
-                 ->from('country')
-                 ->where('id_country = ' . (int)$idCountry);
+            ->from('country')
+            ->where('id_country = ' . (int)$idCountry);
         $result = Db::getInstance('_PS_USE_SQL_SLAVE_')->getRow($sqlQuery);
         $isoPS = [
             'DE',
@@ -845,34 +1195,138 @@ class DPDTools
             'UA',
         ];
 
-        return in_array($result['iso_code'], $isoPS, true) ? // * IF IN ARRAY of the result (only one result) has one of the Prestashop ISO
-            str_replace($isoPS, $isoCargo, $result['iso_code']) : // * THEN Replace the Prestashop ISO Format to Cargo ISO Format
-            str_replace($result['iso_code'], 'INT', $result['iso_code']);   // * ELSE Replace the Prestashop ISO Format TO 'INT' (intercontinental)
+        return in_array(
+            $result['iso_code'],
+            $isoPS,
+            true
+        ) ? // * IF IN ARRAY of the result (only one result) has one of the Prestashop ISO
+            str_replace(
+                $isoPS,
+                $isoCargo,
+                $result['iso_code']
+            ) : // * THEN Replace the Prestashop ISO Format to Cargo ISO Format
+            str_replace(
+                $result['iso_code'],
+                'INT',
+                $result['iso_code']
+            );   // * ELSE Replace the Prestashop ISO Format TO 'INT' (intercontinental)
+    }
+
+    /**
+     * Converts a postal code to the CNS format
+     * Return the valid postal code
+     *
+     * @param int $idCountry
+     * @param string $cp
+     * @return string
+     */
+    public static function getCpCargoFormat(int $idCountry, string $cp): string
+    {
+        $sqlQuery = new DbQuery();
+        $sqlQuery->select('iso_code')
+            ->from('country')
+            ->where('id_country = ' . $idCountry);
+        $result = Db::getInstance('_PS_USE_SQL_SLAVE_')->getRow($sqlQuery);
+
+        // Handle each CNS format by country
+        switch ($result['iso_code']) {
+            case 'PL':
+                $newCp = str_replace('-', '', $cp);
+                break;
+            case 'AZ':
+                $newCp = str_replace($result['iso_code'], '', $cp);
+                break;
+            case 'SI':
+            case 'LV':
+            case 'MD':
+                $newCp = str_replace([$result['iso_code'], '-'], '', $cp);
+                break;
+            case 'GG':
+                $newCp = substr($cp, 2);
+                $newCp = 'GY' . $newCp;
+                break;
+            case 'CZ':
+            case 'SK':
+            case 'SE':
+            case 'CA':
+                $newCp = str_replace(' ', '', $cp);
+                break;
+            default:
+                $newCp = $cp;
+                break;
+        }
+
+        return $newCp;
+    }
+
+    /**
+     * Return the valid CNS format postal code for the error message when printing labels
+     *
+     * @param int $idCountry
+     * @return array
+     */
+    public static function checkCustomErrorLabel(int $idCountry): array
+    {
+        $sqlQuery = new DbQuery();
+        $sqlQuery->select('iso_code')
+            ->from('country')
+            ->where('id_country = ' . $idCountry);
+        $result = Db::getInstance('_PS_USE_SQL_SLAVE_')->getRow($sqlQuery);
+
+        // return the valid CNS format by country
+        $customFormat = true;
+        switch ($result['iso_code']) {
+            case 'GI':
+                $format = ' GX11 1AA';
+                break;
+            case 'BA':
+                $format = ' nnnnn';
+                break;
+            case 'MK':
+                $format = ' nnnn';
+                break;
+            case 'GB':
+                $format = ' an naa';
+                break;
+            case 'IE':
+                $format = ' n';
+                break;
+            case 'MT':
+                $format = ' aaannnn';
+                break;
+            default:
+                $format = '';
+                $customFormat = false;
+                break;
+        }
+
+        return [$format, $customFormat];
     }
 
     /**
      * Get all orders but statuses cancelled, delivered, error
      *
-     * @param int $id_shop
+     * @param int $idLang
+     * @param int $idShopGroup
+     * @param int $idShop
      * @return array
      * @throws PrestaShopDatabaseException
      */
-    public static function getAllOrders(int $id_shop): array
+    public static function getAllOrders(int $idLang, int $idShopGroup, int $idShop): array
     {
-        $id_shop = $id_shop == 0 ? 'LIKE "%"' : '= ' . $id_shop;
         $sql = new DbQuery();
         $sql->select('id_order')
             ->from('orders', 'O')
             ->where(
                 'current_state NOT IN('
-                . DPDConfig::get('DPDFRANCE_ETAPE_LIVRE', null, null, $id_shop) . ','
+                . DPDConfig::get('DPDFRANCE_ETAPE_LIVRE', $idLang, $idShopGroup, $idShop) . ','
                 . self::ORDER_STATUS_DELIVERED . ','
                 . self::ORDER_STATUS_CANCELLED . ','
                 . self::ORDER_STATUS_REFUNDED . ','
                 . self::ORDER_STATUS_PAYEMENT_ERROR .
                 ')'
             )
-            ->where('O.id_shop ' . $id_shop)
+            ->where('O.id_shop = ' . $idShop)
             ->orderBy('id_order DESC')
             ->limit(1000);
         $result = Db::getInstance()->executeS($sql);
@@ -894,7 +1348,9 @@ class DPDTools
     public static function getDeliveryInfos(int $id_cart)
     {
         $sql = new DbQuery();
-        $sql->select('id_customer, id_cart, service, relay_id, company, address1, address2, postcode, city, id_country, gsm_dest')
+        $sql->select(
+            'id_customer, id_cart, service, relay_id, company, address1, address2, postcode, city, id_country, gsm_dest'
+        )
             ->from('dpdfrance_shipping')
             ->where('id_cart = ' . (int)$id_cart);
 
@@ -910,8 +1366,25 @@ class DPDTools
     {
         $sqlGetZone = new DbQuery();
         $sqlGetZone->select('id_zone')
-                   ->from('zone')
-                   ->where('name LIKE \'%France%\'');
+            ->from('zone')
+            ->where('name LIKE \'%France%\'');
+
+        return Db::getInstance()->executeS($sqlGetZone);
+    }
+
+    /**
+     * Get Europe Zones if activated, but exclude non-European Union Zones
+     * @return array|bool|IteratorAggregate|resource|null
+     * @throws PrestaShopDatabaseException
+     */
+    public static function getAllActivatedEuropeanZones()
+    {
+        $sqlGetZone = new DbQuery();
+        $sqlGetZone->select('id_zone')
+            ->from('zone')
+            ->where('name LIKE \'%Europe%\'')
+            ->where('name NOT LIKE \'%Europe (non-EU)%\'')
+            ->where('active = 1');
 
         return Db::getInstance()->executeS($sqlGetZone);
     }
@@ -925,8 +1398,8 @@ class DPDTools
     {
         $sqlQuery = new DbQuery();
         $sqlQuery->select('postcode')
-                 ->from('address', 'a')
-                 ->where('a.id_address = ' . (int)$id_address);
+            ->from('address', 'a')
+            ->where('a.id_address = ' . (int)$id_address);
         $row = Db::getInstance()->getRow($sqlQuery);
 
         return !empty($row['postcode']) ? $row['postcode'] : false;
@@ -946,7 +1419,11 @@ class DPDTools
         $str = preg_replace('/[\x{00E7}\x{0107}\x{0109}\x{010B}\x{010D}}]/u', 'c', $str);
         $str = preg_replace('/[\x{010E}\x{0110}]/u', 'D', $str);
         $str = preg_replace('/[\x{010F}\x{0111}]/u', 'd', $str);
-        $str = preg_replace('/[\x{00C8}\x{00C9}\x{00CA}\x{00CB}\x{0112}\x{0114}\x{0116}\x{0118}\x{011A}\x{20AC}]/u', 'E', $str);
+        $str = preg_replace(
+            '/[\x{00C8}\x{00C9}\x{00CA}\x{00CB}\x{0112}\x{0114}\x{0116}\x{0118}\x{011A}\x{20AC}]/u',
+            'E',
+            $str
+        );
         $str = preg_replace('/[\x{00E8}\x{00E9}\x{00EA}\x{00EB}\x{0113}\x{0115}\x{0117}\x{0119}\x{011B}]/u', 'e', $str);
         $str = preg_replace('/[\x{00CC}\x{00CD}\x{00CE}\x{00CF}\x{0128}\x{012A}\x{012C}\x{012E}\x{0130}]/u', 'I', $str);
         $str = preg_replace('/[\x{00EC}\x{00ED}\x{00EE}\x{00EF}\x{0129}\x{012B}\x{012D}\x{012F}\x{0131}]/u', 'i', $str);
@@ -997,10 +1474,10 @@ class DPDTools
             } else {
                 foreach ($rss->channel->item as $i => $item) {
                     $stream[$i] = [
-                        'category'    => (string)$item->category,
-                        'title'       => (string)$item->title,
+                        'category' => (string)$item->category,
+                        'title' => (string)$item->title,
                         'description' => (string)$item->description,
-                        'date'        => strtotime((string)$item->pubDate),
+                        'date' => strtotime((string)$item->pubDate),
                     ];
                 }
                 if (empty($stream)) {
@@ -1016,19 +1493,28 @@ class DPDTools
 
     /**
      * Get the Leadtime from the Lead Time API
-     * @param string $addressId    The address id of the customer
-     * @param string $isoCode      The ISO CODE of the shop
-     * @param bool   $isSummaryTop Identifying which block to select for the text
+     * @param string $addressId The address id of the customer
+     * @param string $isoCode The ISO CODE of the shop
+     * @param bool $isSummaryTop Identifying which block to select for the text
+     * @param int $idLang
+     * @param int $idShopGroup
+     * @param int $idShop
      * @return string
      */
-    public static function getLeadtime(string $addressId, string $isoCode, bool $isSummaryTop)
-    {
+    public static function getLeadtime(
+        string $addressId,
+        string $isoCode,
+        bool $isSummaryTop,
+        int $idLang,
+        int $idShopGroup,
+        int $idShop
+    ): string {
         // Check if the DPD Day Definite setting & if the order summary is enabled & if leadtime api key is defined & if the shipping postal code defined
         if (
-            !DPDConfig::get('DPDFRANCE_DAY_DEFINITE_MODE')
-            || empty(DPDConfig::get('DPDFRANCE_LEADTIME_API_KEY'))
-            || !Configuration::get('PS_FINAL_SUMMARY_ENABLED')
-            || empty(DPDConfig::get('DPDFRANCE_CP_EXP'))
+            !DPDConfig::get('DPDFRANCE_DAY_DEFINITE_MODE', $idLang, $idShopGroup, $idShop)
+            || empty(DPDConfig::get('DPDFRANCE_LEADTIME_API_KEY', $idLang, $idShopGroup, $idShop))
+            || !Configuration::get('PS_FINAL_SUMMARY_ENABLED', $idLang, $idShopGroup, $idShop, false)
+            || empty(DPDConfig::get('DPDFRANCE_CP_EXP', $idLang, $idShopGroup, $idShop))
         ) {
             return '';
         }
@@ -1045,12 +1531,12 @@ class DPDTools
         }
 
         $leadtimeCallParams = [
-            'originCountry'         => 'FR',
-            'originPostalCode'      => DPDConfig::get('DPDFRANCE_CP_EXP'),
-            'destinationCountry'    => $destinationCountry,
+            'originCountry' => 'FR',
+            'originPostalCode' => DPDConfig::get('DPDFRANCE_CP_EXP', $idLang, $idShopGroup, $idShop),
+            'destinationCountry' => $destinationCountry,
             'destinationPostalCode' => $destinationAddress->postcode,
-            'originBuCode'          => '038',
-            'soCode'                => '101',
+            'originBuCode' => '038',
+            'soCode' => '101',
         ];
 
         // Handle FO text translations
@@ -1070,15 +1556,19 @@ class DPDTools
                 break;
         }
 
-        $leadtime = LeadtimeProvider::getDelayBetweenZipCodes(DPDFRANCE_LEADTIME_URL, DPDConfig::get('DPDFRANCE_LEADTIME_API_KEY'), $leadtimeCallParams);
+        $leadtime = LeadtimeProvider::getDelayBetweenZipCodes(
+            DPDFRANCE_LEADTIME_URL,
+            DPDConfig::get('DPDFRANCE_LEADTIME_API_KEY', $idLang, $idShopGroup, $idShop),
+            $leadtimeCallParams
+        );
 
         // Check if the LeadtimeProvider returns an error or a JSON object with errors
         if (!is_null($leadtime)) {
             $leadtimeInfo = $isSummaryTop ? [
-                'date' => $dateText.$leadtime->format('d/m/Y')
+                'date' => $dateText . $leadtime->format('d/m/Y'),
             ] : [
-                'date' => $dateText.$leadtime->format('d/m/Y'),
-                'text' => $dateInfo
+                'date' => $dateText . $leadtime->format('d/m/Y'),
+                'text' => $dateInfo,
             ];
 
             return json_encode($leadtimeInfo);
@@ -1127,10 +1617,10 @@ class DPDTools
         return Db::getInstance()->insert(
             'dpdfrance_relais_storage',
             [
-                'id_cart'      => (int)$idCart,
-                'id_customer'  => (int)$idCustomer,
+                'id_cart' => (int)$idCart,
+                'id_customer' => (int)$idCustomer,
                 'search_relay' => pSQL($searchRelay),
-                'relay_list'   => pSQL($relayList),
+                'relay_list' => pSQL($relayList),
             ]
         );
     }
@@ -1153,7 +1643,7 @@ class DPDTools
             'dpdfrance_relais_storage',
             [
                 'search_relay' => pSQL($searchRelay),
-                'relay_list'   => pSQL($relayList),
+                'relay_list' => pSQL($relayList),
             ],
             'id_cart = ' . (int)$idCart . ' AND id_customer = ' . (int)$idCustomer
         );
@@ -1285,10 +1775,9 @@ class DPDTools
         return false;
     }
 
-    // TODO créer une classe DPDHtml ?
-
     public static function getHtmlDevBadge()
     {
+        // Note dev : créer une classe DPDHtml ?
         $wsText = DPDFRANCE_DEV_USE_WS_TEST === true ? 'Test' : 'Prod';
         $wsClass = DPDFRANCE_DEV_USE_WS_TEST === true
             ? 'badge badge-success'
@@ -1309,5 +1798,57 @@ class DPDTools
         }
 
         exit;
+    }
+
+    /**
+     * Get prestashop context info : id shop or shops
+     * @param int $idContext
+     * @param $idShopGroup null if context is CONTEXT_ALL
+     * @param $idShop null if context is CONTEXT_ALL or CONTEXT_GROUP
+     * @return array
+     */
+    public static function getContext(int $idContext, $idShopGroup, $idShop): array
+    {
+        switch ($idContext) {
+            // Le contexte "CONTEXT_ALL" (toutes les boutiques)
+            case 4:
+                $contextShop = false;
+                $currentShopId = (int)Configuration::get('PS_SHOP_DEFAULT');
+                $currentShopGroupId = Shop::getGroupFromShop($currentShopId);
+                foreach (Shop::getShops() as $shops) {
+                    $shopId[] = (int)$shops['id_shop'];
+                }
+                break;
+            // Le contexte "CONTEXT_GROUP" (un groupe de boutique)
+            case 2:
+                $contextShop = false;
+                $currentShopId = (int)Configuration::get('PS_SHOP_DEFAULT');
+                $currentShopGroupId = Shop::getGroupFromShop($currentShopId);
+                foreach (Shop::getShops(true, (int)$idShopGroup) as $shops) {
+                    $shopId[] = (int)$shops['id_shop'];
+                }
+                break;
+            // Le contexte "CONTEXT_SHOP" (une boutique)
+            case 1:
+                $contextShop = true;
+                $currentShopId = (int)$idShop;
+                $currentShopGroupId = (int)$idShopGroup;
+                $shopId = (int)$idShop;
+                break;
+            // Si aucune correspondance, le contexte sera "CONTEXT_SHOP" de la boutique par défaut
+            default:
+                $contextShop = true;
+                $currentShopId = (int)Configuration::get('PS_SHOP_DEFAULT');
+                $currentShopGroupId = Shop::getGroupFromShop($currentShopId);
+                $shopId = (int)Configuration::get('PS_SHOP_DEFAULT');
+                break;
+        }
+
+        return [
+            'isContextShop' => $contextShop,
+            'currentShopId' => $currentShopId,
+            'currentShopGroupId' => $currentShopGroupId,
+            'shopId' => $shopId
+        ];
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -29,103 +29,103 @@
  * Google Maps
  */
 const initializeDpdFranceGM = (mapid, lat, longti, baseurl) => {
-    let latlng    = new google.maps.LatLng(lat, longti);
+    let latlng = new google.maps.LatLng(lat, longti);
     let myOptions = {
-        zoom     : 16,
-        center   : latlng,
+        zoom: 16,
+        center: latlng,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        styles   : [
+        styles: [
             {
                 "featureType": "landscape",
-                "stylers"    : [{"visibility": "on"}, {"color": "#e6e7e7"}]
+                "stylers": [{"visibility": "on"}, {"color": "#e6e7e7"}]
             }, {
                 "featureType": "poi.sports_complex",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "poi.attraction",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }, {
                 "featureType": "poi.government",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "poi.medical",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "poi.place_of_worship",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "poi.school",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "water",
                 "elementType": "geometry",
-                "stylers"    : [{"visibility": "on"}, {"color": "#d2e4f3"}]
+                "stylers": [{"visibility": "on"}, {"color": "#d2e4f3"}]
             }, {
                 "featureType": "water",
                 "elementType": "labels",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "transit",
                 "elementType": "labels",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }, {
                 "featureType": "road",
                 "elementType": "geometry.fill",
-                "stylers"    : [{"visibility": "on"}, {"color": "#ffffff"}]
+                "stylers": [{"visibility": "on"}, {"color": "#ffffff"}]
             }, {
                 "featureType": "road",
                 "elementType": "geometry.stroke",
-                "stylers"    : [{"visibility": "on"}, {"color": "#e6e7e7"}]
+                "stylers": [{"visibility": "on"}, {"color": "#e6e7e7"}]
             }, {
                 "elementType": "labels.text.fill",
-                "stylers"    : [{"visibility": "on"}, {"color": "#666666"}]
+                "stylers": [{"visibility": "on"}, {"color": "#666666"}]
             }, {
                 "featureType": "poi.business",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }, {
                 "featureType": "road",
                 "elementType": "labels.icon",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }, {
                 "featureType": "poi",
                 "elementType": "geometry.fill",
-                "stylers"    : [{"visibility": "on"}, {"color": "#dbdbdb"}]
+                "stylers": [{"visibility": "on"}, {"color": "#dbdbdb"}]
             }, {
                 "featureType": "administrative.locality",
                 "elementType": "labels.text.fill",
-                "stylers"    : [{"visibility": "on"}, {"color": "#808285"}]
+                "stylers": [{"visibility": "on"}, {"color": "#808285"}]
             }, {
                 "featureType": "transit.station",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "transit",
                 "elementType": "geometry",
-                "stylers"    : [{"visibility": "on"}, {"color": "#dbdbdb"}]
+                "stylers": [{"visibility": "on"}, {"color": "#dbdbdb"}]
             }, {
                 "elementType": "labels.icon",
-                "stylers"    : [{"visibility": "on"}, {"saturation": -100}]
+                "stylers": [{"visibility": "on"}, {"saturation": -100}]
             }, {
                 "featureType": "road",
                 "elementType": "labels.icon",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }, {
                 "elementType": "labels.text",
-                "stylers"    : [{"visibility": "on"}]
+                "stylers": [{"visibility": "on"}]
             }, {
                 "featureType": "transit.line",
                 "elementType": "labels.text",
-                "stylers"    : [{"visibility": "off"}]
+                "stylers": [{"visibility": "off"}]
             }
         ]
     };
 
-    let map    = new google.maps.Map(document.getElementById(mapid), myOptions);
+    let map = new google.maps.Map(document.getElementById(mapid), myOptions);
     let marker = new google.maps.Marker(
         {
-            icon     : baseurl + "/views/img/front/relais/logo-max-png.png",
-            position : latlng,
+            icon: baseurl + "/views/img/front/relais/logo-max-png.png",
+            position: latlng,
             animation: google.maps.Animation.DROP,
-            map      : map
+            map: map
         }
     );
 };
@@ -135,7 +135,7 @@ const initializeDpdFranceGM = (mapid, lat, longti, baseurl) => {
  */
 const openDpdFranceDialog = (id, mapid, lat, longti, baseurl) => {
     $("#header").css('z-index', 0);
-    let greyFilterPage       = $("#dpdfrance_relais_filter");
+    let greyFilterPage = $("#dpdfrance_relais_filter");
     let relayDetailsSelected = $("#" + id);
 
     greyFilterPage.fadeIn(150, () => relayDetailsSelected.fadeIn(150));
@@ -149,28 +149,28 @@ const openDpdFranceDialog = (id, mapid, lat, longti, baseurl) => {
  * Update Relais DPD Pick Up Points
  */
 const dpdFranceRelaisAjaxUpdate = (address, zipcode, city, action, dpdfrance_cart_id) => {
-    if ((zipcode && zipcode.length >= 5 && action === 'search') || action === 'reset') {
-        let img = '<img src="' + dpdfrance_base_dir + '/views/img/front/relais/loader.gif" alt="loader"/>';
+    if ((zipcode && action === 'search') || action === 'reset') {
+        let img = '<img src="' + dpdfrance_img_base_dir + '/views/img/front/relais/loader.gif" alt="loader"/>';
         $('#dpdfrance_reset_submit').after(img);
-        $.ajax(dpdfrance_base_dir + '/ajax.php?action_ajax_dpdfrance=ajaxUpdatePoints',
-               {
-                   type   : 'POST',
-                   data   : {
-                       'address'          : address,
-                       'zipcode'          : zipcode,
-                       'city'             : city,
-                       'action'           : action,
-                       'dpdfrance_cart_id': dpdfrance_cart_id
-                   },
-                   success: function (data) {
-                       let html                   = $(data);
-                       let relaisPickUpPointTable = $('#dpdfrance_relais_point_table');
-                       relaisPickUpPointTable.html(html);
-                       relaisPickUpPointTable.children('#dpdfrance_relais_point_table').show();
-                       // * Vérifies si un point relais est choisi et l'enregistre
-                       dpdFranceCheckPudo();
-                   }
-               }
+        $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxUpdatePoints',
+            {
+                type: 'POST',
+                data: {
+                    'address': address,
+                    'zipcode': zipcode,
+                    'city': city,
+                    'action': action,
+                    'dpdfrance_cart_id': dpdfrance_cart_id
+                },
+                success: function (data) {
+                    let html = $(data);
+                    let relaisPickUpPointTable = $('#dpdfrance_relais_point_table');
+                    relaisPickUpPointTable.html(html);
+                    relaisPickUpPointTable.children('#dpdfrance_relais_point_table').show();
+                    // * Vérifies si un point relais est choisi et l'enregistre
+                    dpdFranceCheckPudo();
+                }
+            }
         );
     } else {
         $('#dpdfrance_search_zipcode').css('border', '1px solid #dc0032');
@@ -182,7 +182,7 @@ const dpdFranceRelaisAjaxUpdate = (address, zipcode, city, action, dpdfrance_car
  */
 const hideGreyFilterAndDpdRelaisDetails = () => {
     for (let index = 1; index < 6; i++) {
-        document.getElementById('dpdfrance_relais_filter').style.display       = 'none';
+        document.getElementById('dpdfrance_relais_filter').style.display = 'none';
         document.getElementById('dpdfrance_relaydetail' + index).style.display = 'none';
     }
 }
@@ -239,20 +239,20 @@ const dpdFranceRegisterPudo = (pudoId, origin) => {
             return false;
         }
 
-        $.ajax(dpdfrance_base_dir + '/ajax.php?action_ajax_dpdfrance=ajaxRegisterPudo', {
-            type    : 'POST',
-            async   : false,
-            data    : {
+        $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxRegisterPudo', {
+            type: 'POST',
+            async: false,
+            data: {
                 'dpdfrance_cart_id': dpdfrance_cart_id,
-                'pudo_id'          : pudoId,
-                'id_carrier'       : parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value),
+                'pudo_id': pudoId,
+                'id_carrier': parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value),
             },
             dataType: 'json',
-            error   : function () {
+            error: function () {
                 dpdFranceHandleOrderButtonStatus(false);
                 console.error("Nous avons rencontré une problématique temporaire dans l'enregistrement de votre DPD Pickup. Merci de sélectionner un autre Relais Pickup");
             },
-            success : function (data) {
+            success: function (data) {
                 dpdFranceHandlePudoErrorBlock(data);
             }
         });
@@ -264,7 +264,7 @@ const dpdFranceRegisterPudo = (pudoId, origin) => {
  */
 const dpdFranceCheckPudo = origin => {
     let selectedPUDO = document.querySelector("[name=dpdfrance_relay_id]:checked");
-    let error        = document.querySelector(".dpdfrance_relais_error");
+    let error = document.querySelector(".dpdfrance_relais_error");
     if (selectedPUDO && error === null) {
         if (origin) {
             dpdFranceRegisterPudo(selectedPUDO.value, origin);
@@ -282,7 +282,7 @@ const dpdFranceCheckPudo = origin => {
  */
 const displayRelayBlock = () => {
     let tableListPickUpPointsRelay = $('table#dpdfrance_relais_point_table.dpdfrance_fo');
-    let relayDescriptionPart       = $("[id^=delivery_option]:checked").parents('.delivery-option').children('label');
+    let relayDescriptionPart = $("[id^=delivery_option]:checked").parents('.delivery-option').children('label');
 
     // * Déplace la liste de points relais sous la description
     tableListPickUpPointsRelay.appendTo(relayDescriptionPart);
@@ -306,20 +306,20 @@ const displayRelayBlock = () => {
  */
 const dpdfrance_registerGsm = phone => {
     if (phone) {
-        $.ajax(dpdfrance_base_dir + '/ajax.php?action_ajax_dpdfrance=ajaxRegisterGsm',
-               {
-                   type    : 'POST',
-                   data    : {
-                       'dpdfrance_cart_id': dpdfrance_cart_id,
-                       'gsm_dest'         : phone,
-                       'id_carrier'       : parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value),
-                   },
-                   dataType: 'json',
-                   error   : function () {
-                       dpdFranceHandleOrderButtonStatus(false);
-                       alert('Votre numéro de téléphone n\'a pas été sauvegardé, merci de rééssayer.');
-                   }
-               }
+        $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxRegisterGsm',
+            {
+                type: 'POST',
+                data: {
+                    'dpdfrance_cart_id': dpdfrance_cart_id,
+                    'gsm_dest': phone,
+                    'id_carrier': parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value),
+                },
+                dataType: 'json',
+                error: function () {
+                    dpdFranceHandleOrderButtonStatus(false);
+                    alert('Votre numéro de téléphone n\'a pas été sauvegardé, merci de rééssayer.');
+                }
+            }
         );
         dpdFranceHandleOrderButtonStatus(true);
     } else {
@@ -337,38 +337,38 @@ const dpdfrance_checkGSM = (gsm) => {
     if (gsm && gsm !== gsmDest) {
         gsmDest.value = gsm;
     }
-    let gsm_austria        = new RegExp(/^(\+|00)43(\s?\d{9,10})$/);
-    let gsm_belgium        = new RegExp(/^(\+|00)32(\s?\d{8,9})$/);
-    let gsm_croatia        = new RegExp(/^(\+|00)385(\s?\d{8,9})$/);
-    let gsm_czech          = new RegExp(/^(\+|00)420(\s?\d{9,10})$/);
-    let gsm_denmark        = new RegExp(/^(\+|00)45(\s?\d{8,9})$/);
-    let gsm_estonia        = new RegExp(/^(\+|00)372(\s?\d{7,8})$/);
-    let gsm_finland        = new RegExp(/^(\+|00)358(\s?\d{5,12})$/);
-    let gsm_france         = new RegExp(/^((\+33|0033|0)[67])(?:[ _.-]?(\d{2})){4}$/);
-    let gsm_germany        = new RegExp(/^(\+|00)49(\s?\d{10,11})$/);
-    let gsm_hungary        = new RegExp(/^(\+|00)36(\s?\d{8,9})$/);
-    let gsm_ireland        = new RegExp(/^(\+|00)353(\s?\d{8,9})$/);
-    let gsm_italy          = new RegExp(/^(\+|00)39(\s?\d{8,11})$/);
-    let gsm_latvia         = new RegExp(/^(\+|00)371(\s?\d{8,9})$/);
-    let gsm_lithuania      = new RegExp(/^(\+|00)370(\s?\d{8,9})$/);
-    let gsm_luxembourg     = new RegExp(/^(\+|00)352(\s?\d{8,9})$/);
-    let gsm_netherlands    = new RegExp(/^(\+|00)31(\s?\d{9,10})$/);
-    let gsm_poland         = new RegExp(/^(\+|00)48(\s?\d{9,10})$/);
-    let gsm_portugal       = new RegExp(/^(\+|00)351(\s?\d{9,10})$/);
-    let gsm_slovakia       = new RegExp(/^(\+|00)421(\s?\d{9,10})$/);
-    let gsm_slovenia       = new RegExp(/^(\+|00)386(\s?\d{8,9})$/);
-    let gsm_spain          = new RegExp(/^(\+|00)34(\s?\d{9,10})$/);
-    let gsm_switzerland    = new RegExp(/^(\+|00)41(\s?\d{9,10})$/);
-    let gsm_sweden         = new RegExp(/^(\+|00)46(\s?\d{6,9})$/);
-    let gsm_uk             = new RegExp(/^(\+|00)447([3456789]\d)(\s?\d{7})$/);
-    let numbers            = gsmDest.value.substr(-6);
-    let pattern            = [
+    let gsm_austria = new RegExp(/^(\+|00)43(\s?\d{9,10})$/);
+    let gsm_belgium = new RegExp(/^(\+|00)32(\s?\d{8,9})$/);
+    let gsm_croatia = new RegExp(/^(\+|00)385(\s?\d{8,9})$/);
+    let gsm_czech = new RegExp(/^(\+|00)420(\s?\d{9,10})$/);
+    let gsm_denmark = new RegExp(/^(\+|00)45(\s?\d{8,9})$/);
+    let gsm_estonia = new RegExp(/^(\+|00)372(\s?\d{7,8})$/);
+    let gsm_finland = new RegExp(/^(\+|00)358(\s?\d{5,12})$/);
+    let gsm_france = new RegExp(/^((\+33|0033|0)[67])(?:[ _.-]?(\d{2})){4}$/);
+    let gsm_germany = new RegExp(/^(\+|00)49(\s?\d{10,11})$/);
+    let gsm_hungary = new RegExp(/^(\+|00)36(\s?\d{8,9})$/);
+    let gsm_ireland = new RegExp(/^(\+|00)353(\s?\d{8,9})$/);
+    let gsm_italy = new RegExp(/^(\+|00)39(\s?\d{8,11})$/);
+    let gsm_latvia = new RegExp(/^(\+|00)371(\s?\d{8,9})$/);
+    let gsm_lithuania = new RegExp(/^(\+|00)370(\s?\d{8,9})$/);
+    let gsm_luxembourg = new RegExp(/^(\+|00)352(\s?\d{8,9})$/);
+    let gsm_netherlands = new RegExp(/^(\+|00)31(\s?\d{9,10})$/);
+    let gsm_poland = new RegExp(/^(\+|00)48(\s?\d{9,10})$/);
+    let gsm_portugal = new RegExp(/^(\+|00)351(\s?\d{9,10})$/);
+    let gsm_slovakia = new RegExp(/^(\+|00)421(\s?\d{9,10})$/);
+    let gsm_slovenia = new RegExp(/^(\+|00)386(\s?\d{8,9})$/);
+    let gsm_spain = new RegExp(/^(\+|00)34(\s?\d{9,10})$/);
+    let gsm_switzerland = new RegExp(/^(\+|00)41(\s?\d{9,10})$/);
+    let gsm_sweden = new RegExp(/^(\+|00)46(\s?\d{6,9})$/);
+    let gsm_uk = new RegExp(/^(\+|00)447([3456789]\d)(\s?\d{7})$/);
+    let numbers = gsmDest.value.substr(-6);
+    let pattern = [
         '000000', '111111', '222222', '333333', '444444',
         '555555', '666666', '777777', '888888', '999999',
         '123456', '234567', '345678', '456789'
     ];
     let predict_gsm_button = $("#dpdfrance_predict_gsm_button");
-    let predict_error      = $("#dpdfrance_predict_error");
+    let predict_error = $("#dpdfrance_predict_error");
     if (
         (
             gsm_austria.test(gsmDest.value) ||
@@ -418,7 +418,7 @@ const dpdfrance_checkGSM = (gsm) => {
  * Display the Predict block under the description and check if the format of the phone is correct then register it
  */
 const displayPredictBlock = () => {
-    let predictBlock           = $("#div_dpdfrance_predict_block");
+    let predictBlock = $("#div_dpdfrance_predict_block");
     let predictDescriptionPart = $("[id^=delivery_option]:checked").parents('.delivery-option').children('label');
 
     // * Déplace le bloc predict sous la description
@@ -493,17 +493,17 @@ const dpdFranceDisplayMethodBlock = () => {
  */
 const dpdfranceGetGsmFromSelectedAddress = (addressId) => {
     let gsm = '';
-    $.ajax(dpdfrance_base_dir + '/ajax.php?action_ajax_dpdfrance=ajaxGetGsmFromSelectedAddress',
+    $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxGetGsmFromSelectedAddress',
         {
-            type    : 'POST',
-            async   : false,
-            data    : {
-                'address_id' : addressId
+            type: 'POST',
+            async: false,
+            data: {
+                'address_id': addressId
             },
-            success : function (text) {
+            success: function (text) {
                 gsm = text;
             },
-            error   : function () {
+            error: function () {
                 dpdFranceHandleOrderButtonStatus(false);
                 gsm = false;
                 console.log('Un problème est survenue, merci de réessayer.');
@@ -517,17 +517,17 @@ const dpdfranceGetGsmFromSelectedAddress = (addressId) => {
  * Delete previous dpdfrance_shipping entry in database
  */
 const dpdfranceUpdateShipping = () => {
-    $.ajax(dpdfrance_base_dir + '/ajax.php',
+    $.ajax(dpdfrance_base_dir,
         {
-            type    : 'POST',
-            data    : {
+            type: 'POST',
+            data: {
                 'action_ajax_dpdfrance': 'ajaxUpdateShipping'
             },
             dataType: 'json',
-            success : function () {
+            success: function () {
                 return true;
             },
-            error   : function () {
+            error: function () {
                 dpdFranceHandleOrderButtonStatus(false);
                 console.log('Un problème est survenue, merci de réessayer.');
                 return false;
@@ -541,20 +541,20 @@ const dpdfranceUpdateShipping = () => {
  */
 const dpdFranceDisplayLeadtime = () => {
     let selectedAddressId = $("article.address-item.selected").find('input[name=id_address_delivery]').val();
-    let response          = '';
+    let response = '';
 
-    $.ajax(dpdfrance_base_dir + '/ajax.php?action_ajax_dpdfrance=ajaxGetLeadtime',
+    $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxGetLeadtime',
         {
-            type    : 'POST',
-            async   : false,
-            data    : {
-                'address_id' : selectedAddressId,
-                'carrier_id' : parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value)
+            type: 'POST',
+            async: false,
+            data: {
+                'address_id': selectedAddressId,
+                'carrier_id': parseInt(document.querySelector('input[id*="delivery_option_"]:checked').value)
             },
-            success : function (e) {
+            success: function (e) {
                 response = e;
             },
-            error   : function () {
+            error: function () {
                 return false;
             }
         }
@@ -617,7 +617,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /**
      * Handle relay points behavior on click and register relau points delivery address
      */
-    $('#dpdfrance_relais_point_table').on('click', 'tr.dpdfrance_lignepr', function(event) {
+    $('#dpdfrance_relais_point_table').on('click', 'tr.dpdfrance_lignepr', function (event) {
         dpdFranceRegisterPudo($(this).data("relayId"));
         event.preventDefault();
     });
@@ -654,12 +654,12 @@ document.addEventListener("DOMContentLoaded", () => {
          * Validate the format of the phone number, if empty return empty value else display number and error message
          */
         let gsmNumbersFormatValidation = new RegExp(/^[\+]?[(]?[0-9]{0,3}[)]?[-\s\.]?[0-9]{0,3}[-\s\.]?[0-9]+$/, 'im');
-        let gsmBasicFormatValidation   = new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}$/, 'im');
-        let selectedAddressId          = $("article.address-item.selected").find('input[name=id_address_delivery]').val();
-        let predictGsmButton           = $("#dpdfrance_predict_gsm_button");
-        let predictError               = $("#dpdfrance_predict_error");
-        let gsmFormatError             = false;
-        let gsmDeliveryMobilePhone     = dpdfranceGetGsmFromSelectedAddress(selectedAddressId);
+        let gsmBasicFormatValidation = new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}$/, 'im');
+        let selectedAddressId = $("article.address-item.selected").find('input[name=id_address_delivery]').val();
+        let predictGsmButton = $("#dpdfrance_predict_gsm_button");
+        let predictError = $("#dpdfrance_predict_error");
+        let gsmFormatError = false;
+        let gsmDeliveryMobilePhone = dpdfranceGetGsmFromSelectedAddress(selectedAddressId);
         if (gsmDeliveryMobilePhone && gsmDeliveryMobilePhone !== false) {
             gsmDeliveryMobilePhone = gsmDeliveryMobilePhone.replace(/\s+/g, '');
             if (gsmNumbersFormatValidation.test(gsmDeliveryMobilePhone)) {
@@ -710,7 +710,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         /**
          * If click on confirm address, assign phone number to predict input field
-         * TODO: not working perfectly
          */
         document.querySelector('button[name="confirm-addresses"]').addEventListener('click', () => {
             document.querySelector("input[name='dpdfrance_predict_gsm_dest']").value = gsmDeliveryMobilePhone;

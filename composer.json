@@ -9,7 +9,7 @@
     ],
     "type": "prestashop-module",
     "license": "AFL - Academic Free License (AFL 3.0)",
-    "version": "6.2",
+    "version": "6.3",
     "require": {
         "php": ">=7.0",
         "setasign/fpdi": "^2.3",

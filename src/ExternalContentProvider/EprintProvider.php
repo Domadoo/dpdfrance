@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,11 +18,15 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
 namespace PrestaShop\Module\DPDFrance\ExternalContentProvider;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Eprint\Address;
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Eprint\BcDataExt;
@@ -99,12 +103,15 @@ class EprintProvider
         $url = $useTestEnv === false ? self::EPRINT_URL_PROD : self::EPRINT_URL_TEST;
 
         try {
+            ini_set('soap.wsdl_cache_enabled', 1);
+            ini_set('soap.wsdl_cache_ttl', 1800); // 12 heures
+            ini_set('soap.wsdl_cache', WSDL_CACHE_MEMORY);
+
             $soapClient = new SoapClient(
                 $url,
                 [
                     'connection_timeout' => 5,
-                    'cache_wsdl'         => WSDL_CACHE_NONE,
-                    'exceptions'         => true,
+                    'exceptions' => true,
                 ]
             );
             self::$auth = new stdClass();
@@ -222,13 +229,13 @@ class EprintProvider
     {
         if ($bc) {
             $bcRequestParams = [
-                'customer'       => [
-                    'countrycode'  => $request['countrycode'],
+                'customer' => [
+                    'countrycode' => $request['countrycode'],
                     'centernumber' => $request['centernumber'],
-                    'number'       => $request['customer_number'],
+                    'number' => $request['customer_number'],
                 ],
                 'shipmentNumber' => $request['parcelnumber'],
-                'labelType'      => $request['labelType'],
+                'labelType' => $request['labelType'],
             ];
 
             $response = self::$soapClient->GetLabelBc([
@@ -294,13 +301,13 @@ class EprintProvider
     {
         if ($bc) {
             $bcRequestParams = [
-                'customer'       => [
-                    'countrycode'  => $request['countrycode'],
+                'customer' => [
+                    'countrycode' => $request['countrycode'],
                     'centernumber' => $request['centernumber'],
-                    'number'       => $request['customer_number'],
+                    'number' => $request['customer_number'],
                 ],
                 'shipmentNumber' => $request['parcelnumber'],
-                'labelType'      => $request['labelType'],
+                'labelType' => $request['labelType'],
             ];
 
             if (isset($request['receiveraddress'])) {
@@ -351,10 +358,10 @@ class EprintProvider
     {
         if ($bc) {
             $bcRequestParams = [
-                'customer'          => [
-                    'countrycode'  => $request['countrycode'],
+                'customer' => [
+                    'countrycode' => $request['countrycode'],
                     'centernumber' => $request['centernumber'],
-                    'number'       => $request['customer_number'],
+                    'number' => $request['customer_number'],
                 ],
                 'originalBarcodeId' => $request['original_parcelnumber'],
             ];
@@ -399,12 +406,12 @@ class EprintProvider
             RetourShipmentDataBc::class,
             $retourShipmentDataStd,
             [
-                'shipperaddress'  => Address::class,
-                'customeradress'  => Address::class,
+                'shipperaddress' => Address::class,
+                'customeradress' => Address::class,
                 'receiveraddress' => Address::class,
-                'shipment'        => BcDataExt::class,
-                'shipmentRetour'  => BcDataExt::class,
-                'services'        => RetourServices::class,
+                'shipment' => BcDataExt::class,
+                'shipmentRetour' => BcDataExt::class,
+                'services' => RetourServices::class,
             ]
         );
     }
@@ -418,7 +425,17 @@ class EprintProvider
     {
         return
             strlen($parcelNumber) === 14
-            && substr($parcelNumber, 0, 3) != '250'
-        ;
+            && substr($parcelNumber, 0, 3) != '250';
+    }
+
+    /**
+     * Vérification de la configuration client et test de connexion, method : getShipment
+     * @return void
+     */
+    public static function webserviceStatus()
+    {
+        self::$soapClient->getShipment([
+            'request' => '',
+        ]);
     }
 }

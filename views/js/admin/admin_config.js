@@ -8,14 +8,21 @@
  *
  */
 $(document).ready(function () {
-    let connectionSetting    = $('#mod_connect');
+    let connectionSetting = $('#mod_connect');
     let extensionFileSetting = $('#mod_format');
-    let printFormatSetting   = $('#print_format');
-    let inputPrinterPort     = $('input[name="format_printer_port"]');
-    let inputPrinterIp       = $('input[name="format_printer_ip"]');
+    let printFormatSetting = $('#print_format');
+    let inputPrinterPort = $('input[name="format_printer_port"]');
+    let inputPrinterIp = $('input[name="format_printer_ip"]');
+
+    if (newCarrierId) {
+        $('#onglet2').click();
+        if (newCarrierId !== 'dpdfrance_world_carrier_id') {
+            dpdfrance_attr_carrier($('[name=' + newCarrierId + ']'));
+        }
+    }
 
     $('body').on('change', '#mod_format', function (e) {
-        let value      = $(this).val();
+        let value = $(this).val();
         let optionFile = $('#a4');
         if (value === 'pdf') {
             optionFile.show();
@@ -136,10 +143,10 @@ $(document).ready(function () {
  * Change the carrier value on select list
  */
 let dpdfrance_attr_carrier = (element) => {
-    var maxValue = undefined;
+    let maxValue = undefined;
     $('option', element).each(function () {
-        var val = $(this).attr('value');
-        val     = parseInt(val, 10);
+        let val = $(this).attr('value');
+        val = parseInt(val, 10);
         if (maxValue === undefined || maxValue < val) {
             maxValue = val;
         }
@@ -153,4 +160,124 @@ let dpdfrance_attr_carrier = (element) => {
 const DPDFranceHandleOpenModuleDoc = (pudoUrl = false) => {
     let docPathFinal = pudoUrl ? docPath + '#page=8' : docPath;
     window.open(docPathFinal, 's', 'width= 640, height= 900, left=0, top=0, resizable=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no');
+}
+
+/**
+ * Open the google maps api doc
+ */
+const DPDFranceHandleOpenGmapDoc = () => {
+    window.open(docGmapPath, 's', 'width= 640, height= 900, left=0, top=0, resizable=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no');
+}
+
+/**
+ * Handle the webservice status message
+ */
+const dpdFranceWebserviceStatusMsg = (status, origin) => {
+    if (origin === 'we') {
+        let weValidMsg = $('#dpd_we_status_msg');
+        let weAlertMsg = $('#dpd_we_status_msg_alert');
+
+        if (status) {
+            if (!weValidMsg.hasClass('active')) {
+                weValidMsg.addClass('active');
+            }
+
+            if (weAlertMsg.hasClass('active')) {
+                weAlertMsg.removeClass('active');
+            }
+        } else {
+            if (weValidMsg.hasClass('active')) {
+                weValidMsg.removeClass('active');
+            }
+
+            if (!weAlertMsg.hasClass('active')) {
+                weAlertMsg.addClass('active');
+            }
+        }
+    } else if (origin === 'wp') {
+        let wpValidMsg = $('#dpd_wp_status_msg');
+        let wpAlertMsg = $('#dpd_wp_status_msg_alert');
+
+        if (status) {
+            if (!wpValidMsg.hasClass('active')) {
+                wpValidMsg.addClass('active');
+            }
+
+            if (wpAlertMsg.hasClass('active')) {
+                wpAlertMsg.removeClass('active');
+            }
+        } else {
+            if (wpValidMsg.hasClass('active')) {
+                wpValidMsg.removeClass('active');
+            }
+
+            if (!wpAlertMsg.hasClass('active')) {
+                wpAlertMsg.addClass('active');
+            }
+        }
+    } else if (origin === 'wl') {
+        let wlValidMsg = $('#dpd_wl_status_msg');
+        let wlAlertMsg = $('#dpd_wl_status_msg_alert');
+
+        if (status) {
+            if (!wlValidMsg.hasClass('active')) {
+                wlValidMsg.addClass('active');
+            }
+
+            if (wlAlertMsg.hasClass('active')) {
+                wlAlertMsg.removeClass('active');
+            }
+        } else {
+            if (wlValidMsg.hasClass('active')) {
+                wlValidMsg.removeClass('active');
+            }
+
+            if (!wlAlertMsg.hasClass('active')) {
+                wlAlertMsg.addClass('active');
+            }
+        }
+    } else if (origin === 'ww') {
+        let wwValidMsg = $('#dpd_ww_status_msg');
+        let wwAlertMsg = $('#dpd_ww_status_msg_alert');
+
+        if (status) {
+            if (!wwValidMsg.hasClass('active')) {
+                wwValidMsg.addClass('active');
+            }
+
+            if (wwAlertMsg.hasClass('active')) {
+                wwAlertMsg.removeClass('active');
+            }
+        } else {
+            if (wwValidMsg.hasClass('active')) {
+                wwValidMsg.removeClass('active');
+            }
+
+            if (!wwAlertMsg.hasClass('active')) {
+                wwAlertMsg.addClass('active');
+            }
+        }
+    }
+};
+
+/**
+ * Check the webservice configuration
+ */
+const dpdFranceWebserviceStatus = (webservice) => {
+    let img = '<img src="' + dpdfrance_img_base_dir + '/views/img/front/relais/loader.gif" alt="loader"/>';
+    $('div[id="dpd_' + webservice + '_status_msg"]').parent().children().first().after(img);
+    $.ajax({
+        type: 'POST', url: dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxGetWebserviceStatus', data: {
+            'webservice_type': webservice,
+            'shop_context': shopContext,
+            'shop_group_id': shopGroupId,
+            'shop_id': shopId,
+        }, success: function (resp) {
+            $('img[alt="loader"]').remove();
+            resp ? dpdFranceWebserviceStatusMsg(true, webservice) : dpdFranceWebserviceStatusMsg(false, webservice);
+        }, error: function () {
+            $('img[alt="loader"]').remove();
+            console.log('Un problème est survenue, merci de réessayer.');
+        }
+    });
 }

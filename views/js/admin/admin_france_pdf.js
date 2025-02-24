@@ -4,21 +4,21 @@
  * @requires jQuery v1.6 or later
  *
  *
- * Copyright 2021 DPD France
+ * Copyright 2024 DPD France
  *
  */
 $(document).ready(function () {
     $(".add-weight").on('click', function () {
-        var id     = $(this).data('id');
-        var unit   = $(this).data('unit');
-        var number = parseInt($(this).data('number'));
+        let id = $(this).data('id');
+        let unit = $(this).data('unit');
+        let number = parseInt($(this).data('number'));
 
         number++;
 
         $(this).data('number', number);
         $(this).parent().find('.remove-weight').data('number', number);
 
-        var newParecel = multiParcelPrototype;
+        let newParecel = multiParcelPrototype;
 
         newParecel = newParecel.replaceAll("__id_order__", id);
         newParecel = newParecel.replace("__unit_order__", unit);
@@ -32,8 +32,8 @@ $(document).ready(function () {
     });
 
     $('.remove-weight').on('click', function () {
-        var number = parseInt($(this).data('number'));
-        number     = number - 1;
+        let number = parseInt($(this).data('number'));
+        number = number - 1;
         $(this).data('number', number);
         $(this).parent().find('.add-weight').data('number', number);
         $(this).parent().find('div').last().remove();
@@ -70,7 +70,7 @@ $(document).ready(function () {
                 }
             });
         }))
-        .then(() => refreshPage());
+            .then(() => refreshPage());
     }
 
     /**
@@ -78,10 +78,10 @@ $(document).ready(function () {
      */
     function isParcelWeightInvalid(orderId) {
         let parcelWeightIsInvalid = false;
-        let invalidWeight          = [];
-        let validWeight            = [];
-        let stop                   = true;
-        let isNotInteger           = true;
+        let invalidWeight = [];
+        let validWeight = [];
+        let stop = true;
+        let isNotInteger = true;
 
         if (Number.isInteger(orderId)) {
             isNotInteger = false;
@@ -135,7 +135,7 @@ $(document).ready(function () {
                  * Add the class of invalid weight input
                  */
                 for (let i = 0; i < invalidWeight.length; i++) {
-                    weightLabelSelector.find('.parcelweight[value="'+invalidWeight[i]+'"]').addClass('noweight_warning');
+                    weightLabelSelector.find('.parcelweight[value="' + invalidWeight[i] + '"]').addClass('noweight_warning');
                 }
                 parcelWeightIsInvalid = true;
             }
@@ -145,7 +145,7 @@ $(document).ready(function () {
              */
             if (validWeight.length !== 0) {
                 for (let i = 0; i < validWeight.length; i++) {
-                    weightLabelSelector.find('.parcelweight[value="'+validWeight[i]+'"]').removeClass('noweight_warning');
+                    weightLabelSelector.find('.parcelweight[value="' + validWeight[i] + '"]').removeClass('noweight_warning');
                 }
             }
         });
@@ -153,13 +153,13 @@ $(document).ready(function () {
     }
 
     function printOne(id) {
-        var cheboxCache  = [];
+        let cheboxCache = [];
 
         if (isParcelWeightInvalid(id)) {
             return false;
         }
 
-        let checkBoxlist     = $(".checkbox-id");
+        let checkBoxlist = $(".checkbox-id");
         let selectedCheckBox = $("#checkbox_" + id);
 
         checkBoxlist.each(function (e, data) {
@@ -189,13 +189,13 @@ $(document).ready(function () {
     function refreshPage() {
         $.ajax(
             {
-                type    : 'GET',
-                url     : dpdfrance_base_dir + '/ajax.php',
-                data    : {
+                type: 'GET',
+                url: dpdfrance_base_dir,
+                data: {
                     'action_ajax_dpdfrance': 'ajaxRefreshListPdf'
                 },
                 dataType: 'json',
-                success : function (data) {
+                success: function (data) {
                     data = eval(data);
                     if (data == "true") {
                         location.reload();
@@ -205,7 +205,7 @@ $(document).ready(function () {
                         }, 1000);
                     }
                 },
-                error   : function (data) {
+                error: function (data) {
                     setTimeout(function () {
                         refreshPage();
                     }, 1000);

@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
@@ -27,23 +27,23 @@
             $('.page-title').prepend('<img src="../modules/dpdfrance/views/img/admin/admin.png"/>')
             $('.marquee').marquee(
                 {
-                    duration        : 20000,
-                    gap             : 50,
+                    duration: 20000,
+                    gap: 50,
                     delayBeforeStart: 0,
-                    direction       : 'left',
-                    duplicated      : true,
-                    pauseOnHover    : true,
+                    direction: 'left',
+                    duplicated: true,
+                    pauseOnHover: true,
                 }
             );
             $('a.popup').fancybox(
                 {
                     'hideOnContentClick': true,
-                    'padding'           : 0,
-                    'overlayColor'      : '#D3D3D3',
-                    'overlayOpacity'    : 0.7,
-                    'width'             : 1024,
-                    'height'            : 640,
-                    'type'              : 'iframe',
+                    'padding': 0,
+                    'overlayColor': '#D3D3D3',
+                    'overlayOpacity': 0.7,
+                    'width': 1024,
+                    'height': 640,
+                    'type': 'iframe',
                 }
             );
             jQuery.expr[':'].contains = function (a, i, m) {
@@ -51,9 +51,9 @@
             };
             $("#tableFilter").keyup(function () {
                 //split the current value of tableFilter
-                var data = this.value.split(";");
+                let data = this.value.split(";");
                 //create a jquery object of the rows
-                var jo   = $("#fbody").find("tr");
+                let jo = $("#fbody").find("tr");
                 if (this.value == "") {
                     jo.show();
                     return;
@@ -61,21 +61,30 @@
                 //hide all the rows
                 jo.hide();
 
-                //Recusively filter the jquery object to get results.
+                //Recursively filter the jquery object to get results.
                 jo.filter(function (i, v) {
-                    var t = $(this);
-                    for (var d = 0; d < data.length; ++d) {
-                        if (t.is(":contains('" + data[d] + "')")) {
+                    let t = $(this);
+
+                    if (data.length <= 1) {
+                        if (t.is(":contains('" + data[0] + "')")) {
                             return true;
                         }
+                    } else {
+                        //create a flag that verify if the keyword is in the current row or not
+                        let flag = true;
+                        data.forEach(function (item) {
+                            if (!t.is(":contains('" + item + "')")) {
+                                flag = false;
+                            }
+                        });
+                        return flag;
                     }
-                    return false;
-                })
-                    //show the rows that match.
-                  .show();
+                }).show(); //show the rows that match.
             }).focus(function () {
                 this.value = "";
-                $(this).css({"color": "black"});
+                $(this).css({
+                    "color": "black"
+                });
                 $(this).unbind('focus');
             }).css({"color": "#C0C0C0"});
 
@@ -85,15 +94,15 @@
         });
 
         function checkallboxes(ele) {
-            var checkboxes = $("#fbody").find(".checkbox:visible");
+            let checkboxes = $("#fbody").find(".checkbox:visible");
             if (ele.checked) {
-                for (var i = 0; i < checkboxes.length; i++) {
+                for (let i = 0; i < checkboxes.length; i++) {
                     if (typeof checkboxes[i] !== "undefined" && checkboxes[i].type === 'checkbox' && !$('#' + checkboxes[i].id).is(":disabled")) {
                         checkboxes[i].checked = true;
                     }
                 }
             } else {
-                for (var i = 0; i < checkboxes.length; i++) {
+                for (let i = 0; i < checkboxes.length; i++) {
                     if (checkboxes[i].type == 'checkbox') {
                         checkboxes[i].checked = false;
                     }
@@ -144,7 +153,8 @@
                         });
                         "
                 {/literal}*}
-                id="exportform" action="index.php?tab=AdminDPDFrance&token={$token|escape:'htmlall':'UTF-8'}" method="POST"
+                id="exportform" action="index.php?tab=AdminDPDFrance&token={$token|escape:'htmlall':'UTF-8'}"
+                method="POST"
                 enctype="multipart/form-data">
             <body>
             <table style="width: 100%;">
@@ -189,7 +199,7 @@
                                    value="{$order.id|escape:'htmlall':'UTF-8'}">
                         </td>
                         <td class="id text-center">{$order.id|escape:'htmlall':'UTF-8'}</td>
-                        <td class="ref text-center">{$order.reference|escape:'htmlall':'UTF-8'}</td>
+                        <td class="ref {if $order.marketplace_checked}dpd_marketplace{/if} text-center">{$order.reference|escape:'htmlall':'UTF-8'}</td>
                         <td class="date text-center">{$order.date|escape:'htmlall':'UTF-8'}</td>
                         <td class="nom text-center">{$order.nom|escape:'htmlall':'UTF-8'}</td>
                         <td class="type text-center">{$order.type|escape:'quotes':'UTF-8'}</td>
@@ -241,7 +251,8 @@
                                        data-id="{$order.id|escape:'htmlall':'UTF-8'}"
                                        data-unit="{$order.weightunit|escape:'htmlall':'UTF-8'}">
                                     </i>
-                                    <i class="icon-minus-sign remove-weight pointer" style="display: none;" data-number="1"
+                                    <i class="icon-minus-sign remove-weight pointer" style="display: none;"
+                                       data-number="1"
                                        data-id="{$order.id|escape:'htmlall':'UTF-8'}"
                                        data-unit="{$order.weightunit|escape:'htmlall':'UTF-8'}">
                                     </i>
@@ -257,7 +268,8 @@
                             </td>
                             <td class="statusLabel text-center">
                                 {if !empty($order.statuslabel) && $order.statuslabel }
-                                    <i class="icon-warning-sign text-danger" title="{$order.statustext|escape:'htmlall':'UTF-8'}"></i>
+                                    <i class="icon-warning-sign text-danger"
+                                       title="{$order.statustext|escape:'htmlall':'UTF-8'}"></i>
                                 {/if}
                             </td>
                         {/if}
@@ -296,17 +308,17 @@
         </form>
     </div>
     {else}
-        <div class="alert-error">{l s='There are no orders' mod='dpdfrance'}</div>
+    <div class="alert-error">{l s='There are no orders' mod='dpdfrance'}</div>
     {/if}
 </div>
 
 <script>
-    var multiParcelPrototype   = '<div><label>{l s='Parcel' mod='dpdfrance'} __number_parcel__</label> <input class="parcelweight parcelweight-__id_order__"  name="parcelweight[__id_order__][]" type="text" value="0.00" /> __unit_order__  </div>';
-    var dpdfrance_base_dir     = "{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}";
-    var dpdfrance_token        = "{$dpdfrance_token|escape:'javascript':'UTF-8'}";
-    var dpdfrance_usb_name     = "{$dpdfrance_usb_name|escape:'javascript':'UTF-8'}";
-    var dpdfrance_mode_service = "{$service|escape:'javascript':'UTF-8'}";
+    let multiParcelPrototype = '<div><label>{l s='Parcel' mod='dpdfrance'} __number_parcel__</label> <input class="parcelweight parcelweight-__id_order__"  name="parcelweight[__id_order__][]" type="text" value="0.00" /> __unit_order__  </div>';
+    let dpdfrance_base_dir = "{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}";
+    let dpdfrance_token = "{$dpdfrance_token|escape:'javascript':'UTF-8'}";
+    let dpdfrance_usb_name = "{$dpdfrance_usb_name|escape:'javascript':'UTF-8'}";
+    let dpdfrance_mode_service = "{$service|escape:'javascript':'UTF-8'}";
     {if isset($dpdfrance_dev_badge)}
-        var dpdfrance_dev_badge = '{$dpdfrance_dev_badge}';
+    let dpdfrance_dev_badge = '{$dpdfrance_dev_badge|escape:'javascript':'UTF-8'}';
     {/if}
 </script>

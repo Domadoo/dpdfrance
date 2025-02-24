@@ -1,4 +1,5 @@
-{**
+<?php
+/**
  * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
@@ -19,10 +20,19 @@
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
  * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *}
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-<div id="dpdfrance_checkout_block" class="cart-summary-line">
-    <span class="dpdfrance_day_definite_checkout">
-        {$leadtime|escape:'htmlall':'UTF-8'}
-    </span>
-</div>
+/**
+ * @return bool
+ * @throws PrestaShopDatabaseException
+ */
+function upgrade_module_6_4_1()
+{
+    // Suppression des anciens fichiers devenus obsolètes ou déplacés
+    Tools::deleteDirectory(_PS_MODULE_DIR_ . 'dpdfrance/views/js/admin/jquery/plugins/fancybox');
+
+    return true;
+}

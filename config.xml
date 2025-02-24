@@ -2,7 +2,7 @@
 <module>
     <name>dpdfrance</name>
     <displayName><![CDATA[DPD France]]></displayName>
-    <version><![CDATA[6.2.0]]></version>
+    <version><![CDATA[6.4.1]]></version>
     <description><![CDATA[Offer DPD's fast and reliable delivery services to your customers]]></description>
     <author><![CDATA[DPD France S.A.S.]]></author>
     <tab><![CDATA[shipping_logistics]]></tab>

@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
@@ -70,7 +70,8 @@
                     </span>
                     <div id="dpdfrance_div_relais_srch_panel" style="display:none;">
                         <input type="text" id="dpdfrance_search_address" placeholder="{l s='Address' mod='dpdfrance'}"/><br/>
-                        <input type="text" id="dpdfrance_search_zipcode" maxlength="5" placeholder="{l s='Postcode' mod='dpdfrance'}"/>
+                        <input type="text" id="dpdfrance_search_zipcode"
+                               placeholder="{l s='Postcode' mod='dpdfrance'}"/>
                         <input type="text" id="dpdfrance_search_city" placeholder="{l s='City' mod='dpdfrance'}"/>
                         <button type="button" id="dpdfrance_search_submit" name="dpdfrance_search_submit"
                                 onclick="dpdFranceRelaisAjaxUpdate($('#dpdfrance_search_address').val(), $('#dpdfrance_search_zipcode').val(), $('#dpdfrance_search_city').val(), 'search', dpdfrance_cart_id);"
@@ -97,7 +98,8 @@
         {/if}
 
         {foreach from=$dpdfrance_relais_points item=points name=dpdfranceRelaisLoop}
-            <tr class="dpdfrance_lignepr" data-relay-id="{$points.relay_id|escape:'htmlall':'UTF-8'}" onclick="document.getElementById('{$points.relay_id|escape:'htmlall':'UTF-8'}').checked=true;">
+            <tr class="dpdfrance_lignepr" data-relay-id="{$points.relay_id|escape:'htmlall':'UTF-8'}"
+                onclick="document.getElementById('{$points.relay_id|escape:'htmlall':'UTF-8'}').checked=true;">
 
                 {*RELAY Logo*}
                 <td class="dpdfrance_logorelais"></td>
@@ -115,7 +117,7 @@
                 <td class="dpdfrance_popinpr">
                     <span onMouseOver="javascript:this.style.cursor='pointer';"
                           onMouseOut="javascript:this.style.cursor='auto';"
-                          onClick="openDpdFranceDialog('dpdfrance_relaydetail{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}','map_canvas{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}',{$points.coord_lat|escape:'htmlall':'UTF-8'},{$points.coord_long|escape:'htmlall':'UTF-8'},'{$dpdfrance_base_dir|escape:'htmlall':'UTF-8'}')">
+                          onClick="openDpdFranceDialog('dpdfrance_relaydetail{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}','map_canvas{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}',{$points.coord_lat|escape:'htmlall':'UTF-8'},{$points.coord_long|escape:'htmlall':'UTF-8'},'{$dpdfrance_img_base_dir|escape:'htmlall':'UTF-8'}')">
                         <u>{l s='More details' mod='dpdfrance'}</u>
                     </span>
                 </td>
@@ -143,7 +145,6 @@
                     </label>
                 </td>
             </tr>
-
             {* RELAY MODAL *}
             <div id="dpdfrance_relaydetail{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}"
                  class="dpdfrance_relaisbox" style="display:none;">
@@ -151,7 +152,7 @@
                 <div class="dpdfrance_relaisboxclose" onclick="
                         document.getElementById('dpdfrance_relaydetail{$smarty.foreach.dpdfranceRelaisLoop.index+1|escape:'htmlall':'UTF-8'}').style.display='none';
                         document.getElementById('dpdfrance_relais_filter').style.display='none'">
-                    <img src="{$dpdfrance_base_dir|escape:'htmlall':'UTF-8'}/views/img/front/relais/box-close.png"/>
+                    <img src="{$dpdfrance_img_base_dir|escape:'htmlall':'UTF-8'}/views/img/front/relais/box-close.png"/>
                 </div>
 
                 <div class="dpdfrance_relaisboxcarto"
@@ -283,7 +284,8 @@
                         <br/>
                         {if isset($points.closing_period[0])}
                             <h4>
-                                <img src="{$dpdfrance_base_dir|escape:'htmlall':'UTF-8'}/views/img/front/relais/warning.png" alt="warning"/>
+                                <img src="{$dpdfrance_img_base_dir|escape:'htmlall':'UTF-8'}/views/img/front/relais/warning.png"
+                                     alt="warning"/>
                                 {l s='Closing period' mod='dpdfrance'}:
                             </h4>
                             {$points.closing_period[0]|escape:'htmlall':'UTF-8'}
@@ -318,16 +320,24 @@
     <div class="module" id="predict">
         <div id="div_dpdfrance_predict_logo"></div>
         <div class="copy">
-            <p><h2>{l s='With Predict, be independent with your deliveries !' mod='dpdfrance'} :</h2></p><br/>
+            <p>
+            <h2>{l s='With Predict, be independent with your deliveries !' mod='dpdfrance'} :</h2>
+            </p>
+            <br/>
 
-            <p><h2>{l s='How it works:' mod='dpdfrance'}</h2></p>
+            <p>
+            <h2>{l s='How it works:' mod='dpdfrance'}</h2>
+            </p>
             <ul>
                 <li>{l s='A first SMS will be sent to you when your parcel is taken in charge by DPD France. This SMS will tell you the expected delivery date.' mod='dpdfrance'}</li>
                 <li>{l s='On the day of delivery, you will receive an SMS and an email indicating the delivery time slot.' mod='dpdfrance'}</li>
                 <li>{l s='Upon delivery, transmit your code to the DPD France delivery person. Your parcel will be delivered to you against signature.' mod='dpdfrance'}</li>
-            </ul><br/>
+            </ul>
+            <br/>
 
-            <p><h2>{l s='The Predict service allows you to be autonomous on your delivery thanks to a wide choice of reprogramming options until the day before or in case of absence :' mod='dpdfrance'}</h2></p>
+            <p>
+            <h2>{l s='The Predict service allows you to be autonomous on your delivery thanks to a wide choice of reprogramming options until the day before or in case of absence :' mod='dpdfrance'}</h2>
+            </p>
             <ul>
                 <li>{l s='Delivery of your parcel at pudo’s' mod='dpdfrance'}</li>
                 <li>{l s='Delivery to your workplace' mod='dpdfrance'}</li>
@@ -336,20 +346,23 @@
                 <li>{l s='Withdrawal in a DPD France depot' mod='dpdfrance'}</li>
                 <li>{l s='Delivery to another date' mod='dpdfrance'}</li>
             </ul>
-            <p><h2>{l s='Benefit from the advantages of Predict delivery !' mod='dpdfrance'}</h2></p>
-        </div><br/>
+            <p>
+            <h2>{l s='Benefit from the advantages of Predict delivery !' mod='dpdfrance'}</h2>
+            </p>
+        </div>
+        <br/>
         <div id="div_dpdfrance_dpd_logo"></div>
     </div>
 
     <div id="div_dpdfrance_predict_gsm">
-        {l s='Get all the advantages of DPD\'s Predict service by providing a french GSM number here ' mod='dpdfrance'}
+        {l s='Get all the advantages of DPD\'s Predict service by providing a GSM number from your country here ' mod='dpdfrance'}
         <input type="text" name="dpdfrance_predict_gsm_dest" id="input_dpdfrance_predict_gsm_dest" maxlength="17"
                value="{$dpdfrance_predict_gsm_dest|escape:'htmlall':'UTF-8'}">
         <div id="dpdfrance_predict_gsm_button">></div>
     </div>
 
     <div id="dpdfrance_predict_error" class="warnmsg" style="display:none;">
-        {l s='It seems that the GSM number you provided is incorrect. Please provide a french GSM number, starting with 06 or 07, on 10 consecutive digits.' mod='dpdfrance'}
+        {l s='It seems that the GSM number provided is incorrect. Please provide a valid GSM Number for your destination country' mod='dpdfrance'}
     </div>
 </div>
 {*PREDICT*}

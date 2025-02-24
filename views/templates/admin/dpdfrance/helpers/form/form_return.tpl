@@ -1,5 +1,5 @@
 {**
- * Copyright 2023 DPD France S.A.S.
+ * Copyright 2024 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,90 +17,97 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2023 DPD France S.A.S.
+ * @copyright 2024 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
 {literal}
-<script type='text/javascript'>
-    $(document).ready(function(){
-        $('.page-title').prepend('<img src="../modules/dpdfrance/views/img/admin/admin.png"/>')
-        $('.marquee').marquee({
-            duration: 20000,
-            gap: 50,
-            delayBeforeStart: 0,
-            direction: 'left',
-            duplicated: true,
-            pauseOnHover: true
-        });
-    $('a.popup').fancybox({
-            'hideOnContentClick': true,
-            'padding'           : 0,
-            'overlayColor'      :'#D3D3D3',
-            'overlayOpacity'    : 0.7,
-            'width'             : 1024,
-            'height'            : 640,
-            'type'              :'iframe'
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            $('.page-title').prepend('<img src="../modules/dpdfrance/views/img/admin/admin.png"/>')
+            $('.marquee').marquee({
+                duration: 20000,
+                gap: 50,
+                delayBeforeStart: 0,
+                direction: 'left',
+                duplicated: true,
+                pauseOnHover: true
             });
-        jQuery.expr[':'].contains = function(a, i, m) {
-            return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-        };
-    $("#tableFilter").keyup(function () {
-        //split the current value of tableFilter
-        var data = this.value.split(";");
-        //create a jquery object of the rows
-        var jo = $("#fbody").find("tr");
-        if (this.value == "") {
-            jo.show();
-            return;
-        }
-        //hide all the rows
-        jo.hide();
-
-        //Recusively filter the jquery object to get results.
-        jo.filter(function (i, v) {
-            var t = $(this);
-            for (var d = 0; d < data.length; ++d) {
-                if (t.is(":contains('" + data[d] + "')")) {
-                    return true;
-                }
-            }
-            return false;
-        })
-        //show the rows that match.
-        .show();
-        }).focus(function () {
-            this.value = "";
-            $(this).css({
-                "color": "black"
+            $('a.popup').fancybox({
+                'hideOnContentClick': true,
+                'padding': 0,
+                'overlayColor': '#D3D3D3',
+                'overlayOpacity': 0.7,
+                'width': 1024,
+                'height': 640,
+                'type': 'iframe'
             });
-            $(this).unbind('focus');
-        }).css({
-            "color": "#C0C0C0"
+            jQuery.expr[':'].contains = function (a, i, m) {
+                return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+            };
+            $("#tableFilter").keyup(function () {
+                //split the current value of tableFilter
+                let data = this.value.split(";");
+                //create a jquery object of the rows
+                let jo = $("#fbody").find("tr");
+                if (this.value == "") {
+                    jo.show();
+                    return;
+                }
+                //hide all the rows
+                jo.hide();
+
+                //Recursively filter the jquery object to get results.
+                jo.filter(function (i, v) {
+                    let t = $(this);
+
+                    if (data.length <= 1) {
+                        if (t.is(":contains('" + data[0] + "')")) {
+                            return true;
+                        }
+                    } else {
+                        //create a flag that verify if the keyword is in the current row or not
+                        let flag = true;
+                        data.forEach(function (item) {
+                            if (!t.is(":contains('" + item + "')")) {
+                                flag = false;
+                            }
+                        });
+                        return flag;
+                    }
+                }).show(); //show the rows that match.
+            }).focus(function () {
+                this.value = "";
+                $(this).css({
+                    "color": "black"
+                });
+                $(this).unbind('focus');
+            }).css({
+                "color": "#C0C0C0"
+            });
+
+            if (typeof dpdfrance_dev_badge !== 'undefined') {
+                $('h1.page-title').append(dpdfrance_dev_badge);
+            }
         });
 
-        if (typeof dpdfrance_dev_badge !== 'undefined') {
-            $('h1.page-title').append(dpdfrance_dev_badge);
-        }
-    });
-
-    function checkallboxes(ele) {
-        var checkboxes = $("#fbody").find(".checkbox:visible");
-        if (ele.checked) {
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type == 'checkbox') {
-                    checkboxes[i].checked = true;
+        function checkallboxes(ele) {
+            let checkboxes = $("#fbody").find(".checkbox:visible");
+            if (ele.checked) {
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = true;
+                    }
                 }
-            }
-        } else {
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type == 'checkbox') {
-                    checkboxes[i].checked = false;
+            } else {
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = false;
+                    }
                 }
             }
         }
-    }
-</script>
+    </script>
 {/literal}
 
 <div class="dpdfrance_content">
@@ -123,13 +130,14 @@
                 </div>
             </div>
         </fieldset>
-        <br/><br/>
+        <br/>
+        <br/>
     {/if}
 
     {$msg|escape:'quotes':'UTF-8'}
 
     <div id="fieldset_grid">
-    {if !isset($order_info.error) || (isset($order_info.error) && !$order_info.error)}
+        {if !isset($order_info.error) || (isset($order_info.error) && !$order_info.error)}
         <input id="tableFilter" placeholder="{l s='Search something, separate values with ; ' mod='dpdfrance'}"/>
         <img id="filtericon" src="../modules/dpdfrance/views/img/admin/search.png" alt="filtericon"/>
         <br/><br/>
@@ -162,9 +170,11 @@
                         <td>
                             <input style="display: none" id="checkbox_{$order_return.id|escape:'htmlall':'UTF-8'}"
                                    data-id="{$order_return.id|escape:'htmlall':'UTF-8'}" class="checkbox checkbox-id"
-                                   type="checkbox" name="checkbox[]" value="{$order_return.id|escape:'htmlall':'UTF-8'}">
+                                   type="checkbox" name="checkbox[]"
+                                   value="{$order_return.id|escape:'htmlall':'UTF-8'}">
                         </td>
-                        <td class="id text-center" style="min-width: 80px">{$order_return.id|escape:'htmlall':'UTF-8'}</td>
+                        <td class="id text-center"
+                            style="min-width: 80px">{$order_return.id|escape:'htmlall':'UTF-8'}</td>
                         <td class="ref text-center">{$order_return.reference|escape:'htmlall':'UTF-8'}</td>
                         <td class="date text-center">{$order_return.date|escape:'htmlall':'UTF-8'}</td>
                         <td class="nom text-center">{$order_return.nom|escape:'htmlall':'UTF-8'}</td>
@@ -177,7 +187,8 @@
                             </a>
                         </td>
                         <td class="statutcolis text-center">
-                            <a href="javascript:void(0)" onclick="window.open('https://trace.dpd.fr/tracex_{$order_return.reference|escape:'htmlall':'UTF-8'}_{$order_return.depot_code|escape:'htmlall':'UTF-8'}{$order_return.shipper_code|escape:'htmlall':'UTF-8'}','','width=1024,height=768,top=30,left=20')">{$order_return.dernier_statut_colis|escape:'quotes':'UTF-8'}</a>
+                            <a href="javascript:void(0)"
+                               onclick="window.open('https://trace.dpd.fr/tracex_{$order_return.reference|escape:'htmlall':'UTF-8'}_{$order_return.depot_code|escape:'htmlall':'UTF-8'}{$order_return.shipper_code|escape:'htmlall':'UTF-8'}','','width=1024,height=768,top=30,left=20')">{$order_return.dernier_statut_colis|escape:'quotes':'UTF-8'}</a>
                         </td>
                         <td class="labelprint text-center" id="labelprint_{$order_return.id|escape:'htmlall':'UTF-8'}">
                             {if $order_return.arrived }
@@ -192,7 +203,8 @@
                         </td>
                         <td class="statusLabel text-center">
                             {if !empty($order_return.statuslabel) && $order_return.statuslabel }
-                            <i class="icon-warning-sign text-danger" title="{$order_return.statustext|escape:'htmlall':'UTF-8'}"></i>
+                                <i class="icon-warning-sign text-danger"
+                                   title="{$order_return.statustext|escape:'htmlall':'UTF-8'}"></i>
                             {/if}
                         </td>
 
@@ -218,12 +230,13 @@
         </form>
     </div>
     {else}
-        <div class="alert warn">{l s='There are no orders' mod='dpdfrance'}</div>
+    <div class="alert warn">{l s='There are no orders' mod='dpdfrance'}</div>
     {/if}
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="formChange" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="formChange" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -233,41 +246,60 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="form-change" action="index.php?tab=AdminDPDFranceReturn&token={$token|escape:'htmlall':'UTF-8'}&action=changeReturnAddress" method="POST" enctype="multipart/form-data">
+                <form id="form-change"
+                      action="index.php?tab=AdminDPDFranceReturn&token={$token|escape:'htmlall':'UTF-8'}&action=changeReturnAddress"
+                      method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-sm-12 form-group-sm">
-                            <input class="form-control" placeholder="{l s='Street' mod='dpdfrance'}" type="text" name="street" id="street" />
+                            <input class="form-control" placeholder="{l s='Street' mod='dpdfrance'}" type="text"
+                                   name="street" id="street"/>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12 form-group-sm">
-                            <input class="form-control" min="5" max="5" placeholder="{l s='Zip Code' mod='dpdfrance'}" type="text" name="zip" id="zip" />
+                            <input class="form-control" min="5" max="5" placeholder="{l s='Zip Code' mod='dpdfrance'}"
+                                   type="text" name="zip" id="zip"/>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12 form-group-sm">
-                            <input class="form-control" placeholder="{l s='City' mod='dpdfrance'}" type="text" name="city" id="city" />
+                            <input class="form-control" placeholder="{l s='City' mod='dpdfrance'}" type="text"
+                                   name="city" id="city"/>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12 form-group-sm">
-                            <input class="form-control" placeholder="{l s='Phone' mod='dpdfrance'}" type="text" name="phone" id="phone" />
+                            <input class="form-control" placeholder="{l s='Phone' mod='dpdfrance'}" type="text"
+                                   name="phone" id="phone"/>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="close-button" data-dismiss="modal">{l s='Close' mod='dpdfrance'}</button>
-                <button type="button" class="btn btn-primary" id="save" data-order="">{l s='Save change' mod='dpdfrance'}</button>
+                <button type="button" class="btn btn-secondary" id="close-button"
+                        data-dismiss="modal">{l s='Close' mod='dpdfrance'}</button>
+                <button type="button" class="btn btn-primary" id="save"
+                        data-order="">{l s='Save change' mod='dpdfrance'}</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    var dpdfrance_base_dir = "{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}";
-    var dpdfrance_token    = "{$dpdfrance_token|escape:'javascript':'UTF-8'}";
+    let dpdfrance_base_dir = '{$dpdfrance_base_dir|escape:'javascript':'UTF-8'}';
+    let dpdfrance_token = '{$dpdfrance_token|escape:'javascript':'UTF-8'}';
+
+    if (typeof shopContext === 'undefined') {
+        var shopContext = '{$shop_context|escape:'javascript':'UTF-8'}';
+    }
+    if (typeof shopGroupId === 'undefined') {
+        var shopGroupId = '{$shop_group_id|escape:'javascript':'UTF-8'}';
+    }
+    if (typeof shopId === 'undefined') {
+        var shopId = '{$shop_id|escape:'javascript':'UTF-8'}';
+    }
+
     {if isset($dpdfrance_dev_badge)}
-        var dpdfrance_dev_badge = '{$dpdfrance_dev_badge}';
+    let dpdfrance_dev_badge = '{$dpdfrance_dev_badge|escape:'javascript':'UTF-8'}';
     {/if}
 </script>

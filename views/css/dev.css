@@ -6,7 +6,13 @@
 }
 
 @keyframes dpdfrance-dev-twinkling {
-    0%   { opacity:1; }
-    40%   {opacity:0.5; }
-    100% { opacity:1; }
+    0% {
+        opacity: 1;
+    }
+    40% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }
