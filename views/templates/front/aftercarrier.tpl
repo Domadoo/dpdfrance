@@ -1,5 +1,5 @@
 {**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
@@ -44,6 +44,11 @@
         <tr>
             <td colspan="5">
                 <div class="dpdfrance_relais_error"> {$error|escape:'htmlall':'UTF-8'} </div>
+                <button type="button" id="dpdfrance_reset_submit" class="mt-1" name="dpdfrance_reset_submit"
+                        onclick="dpdFranceRelaisAjaxUpdate($('#dpdfrance_search_address').val(), $('#dpdfrance_search_zipcode').val(), $('#dpdfrance_search_city').val(), 'reset', dpdfrance_cart_id);"
+                >
+                    {l s='Reset' mod='dpdfrance'}
+                </button>
             </td>
         </tr>
     {else}
@@ -106,7 +111,7 @@
 
                 {*RELAY Address*}
                 <td class="dpdfrance_adressepr">
-                    <b>{$points.shop_name|escape:'htmlall':'UTF-8'}</b><br/>{$points.address1|escape:'htmlall':'UTF-8'}
+                    <b>{$points.shop_name|escape:'htmlall':'UTF-8'}</b><br/>{$points.street_num|escape:'htmlall':'UTF-8'} {$points.address1|escape:'htmlall':'UTF-8'}
                     <br/>{$points.postal_code|escape:'htmlall':'UTF-8'} {$points.city|escape:'htmlall':'UTF-8'}<br/>
                 </td>
 

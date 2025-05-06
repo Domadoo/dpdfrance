@@ -1,5 +1,5 @@
 {**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
@@ -203,7 +203,7 @@
 
                 <!-- DPD Relais -->
                 <div id="service_relais">
-                    <label>{l s='DPD Relais' mod='dpdfrance'} {l s='(France)' mod='dpdfrance'}</label>
+                    <label>{l s='DPD Relais' mod='dpdfrance'}</label>
                     <div id="service_relais_img"></div>
 
                     <div id="service_relais_contract">
@@ -533,6 +533,46 @@
                 <div id="dpd_ww_status_msg_alert">{l s='Connection to the webservice is not OK' mod='dpdfrance'}</div>
                 <br/><br/>
                 {l s='Please submit your configuration before proceeding with a test' mod='dpdfrance'}
+            </div>
+
+            <br/><br/>
+            <span><strong>{l s='DPD France log management' mod='dpdfrance'}</strong></span>
+            <br/><br/>
+
+            <div class="text-center pb-3">
+                {if isset($tab_logs) && !empty($tab_logs)}
+                    <div class="button dpd_status" onClick="$('#log_table').slideToggle();">
+                        {l s='Display module logs' mod='dpdfrance'}
+                    </div>
+                    <div id="log_table">
+                        <table id="mydatatab" class="table mt-3">
+                            <thead>
+                                <tr>
+                                    <th data-dt-order="disable">{l s='Config parameter name' mod='dpdfrance'}</th>
+                                    <th data-dt-order="disable">{l s='Prestashop version' mod='dpdfrance'}</th>
+                                    <th data-dt-order="disable">{l s='DPD France module version' mod='dpdfrance'}</th>
+                                    <th data-dt-order="disable">{l s='Old parameter value' mod='dpdfrance'}</th>
+                                    <th data-dt-order="disable">{l s='New parameter value' mod='dpdfrance'}</th>
+                                    <th data-dt-order="disable">{l s='Datetime' mod='dpdfrance'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {foreach from=$tab_logs item=log}
+                                <tr>
+                                    <td title="{$log.param_name|escape:'htmlall':'UTF-8'}">{$log.param_name|escape:'htmlall':'UTF-8'}</td>
+                                    <td>{$log.prestashop_version|escape:'htmlall':'UTF-8'}</td>
+                                    <td>{$log.dpdfrance_module_version|escape:'htmlall':'UTF-8'}</td>
+                                    <td title="{$log.old_param_value|escape:'htmlall':'UTF-8'}">{$log.old_param_value|escape:'htmlall':'UTF-8'}</td>
+                                    <td title="{$log.new_param_value|escape:'htmlall':'UTF-8'}">{$log.new_param_value|escape:'htmlall':'UTF-8'}</td>
+                                    <td title="{$log.datretime_fl|escape:'htmlall':'UTF-8'}">{$log.datretime_fl|escape:'htmlall':'UTF-8'}</td>
+                                </tr>
+                            {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+                {else}
+                    {l s='No logs detected for the DPD France module.' mod='dpdfrance'}
+                {/if}
             </div>
 
             <div class="text-center">

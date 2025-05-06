@@ -1,5 +1,5 @@
 {**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 
@@ -219,7 +219,7 @@
                         </td>
                         {if $dpdfrance_retour_option !== 0}
                             <td class="retour text-center">
-                                {if $order.country == 'FR'}
+                                {if $order.retour_authorized}
                                     <input class="retour" type="checkbox"
                                            name="retour[{$order.id|escape:'htmlall':'UTF-8'}]" {$order.retour_checked|escape:'htmlall':'UTF-8'}
                                            value="{$order.id|escape:'htmlall':'UTF-8'}">

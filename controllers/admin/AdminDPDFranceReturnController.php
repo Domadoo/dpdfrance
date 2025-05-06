@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -30,6 +30,7 @@ use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Webtrace\c
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Webtrace\Traces;
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\WebtraceProvider;
 use PrestaShop\Module\DPDFrance\Util\DPDConfig;
+use PrestaShop\Module\DPDFrance\Util\DPDLogs;
 use PrestaShop\Module\DPDFrance\Util\DPDPdfMerger;
 use PrestaShop\Module\DPDFrance\Util\DPDTools;
 
@@ -48,6 +49,10 @@ class AdminDPDFranceReturnController extends ModuleAdminController
         $this->display = 'view';
         $this->meta_title = 'Gestion des retours';
         $this->dirPdf = DPDFRANCE_PDF_FOLDER_PATH;
+
+        // Check the current prestashop & DPD France module version, log if updated
+        DPDLogs::getLastLog();
+        DPDLogs::checkVersion();
 
         if (!$this->module->active) {
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
@@ -93,7 +98,11 @@ class AdminDPDFranceReturnController extends ModuleAdminController
     public function renderView()
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -211,6 +220,28 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                 ) . '</div>';
             exit;
         }
+
+        // Error message if Eprint credentials are missing and if the configured service type is "station_dat"
+        $eprintUser = DPDConfig::get(
+            'DPDFRANCE_API_LOGIN',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+        $serviceType = DPDConfig::get(
+            'DPDFRANCE_SERVICE_TYPE',
+            $this->context->language->id,
+            $currentShopGroupId,
+            $currentShopId
+        );
+
+        if ($serviceType === "station_dat") {
+            $msg = '<div class="warnmsg">' . $this->l(
+                    'Your system is not currently configured to handle returns via your BackOffice. 
+            Please register your DPD France print webservice details in the module settings, or contact your DPD France contact to obtain this information.'
+                ) . '</div>';
+        }
+
         // Calls function to get orders
         $order_info = [];
         $orderStatusList = [];
@@ -402,7 +433,11 @@ class AdminDPDFranceReturnController extends ModuleAdminController
     public function generatedLabelReturn($dpdOrder, &$zplPathReturn = [])
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -570,7 +605,11 @@ class AdminDPDFranceReturnController extends ModuleAdminController
     public function getColis()
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $isContextShop = $shopInfo['isContextShop'];
         $contextShopId = $shopInfo['shopId'];
         $currentShopId = $shopInfo['currentShopId'];
@@ -612,7 +651,8 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             $currentShopGroupId,
             $currentShopId
         );
-        EprintProvider::initSoapClient($eprintUser, $eprintPassword, DPDFRANCE_DEV_USE_WS_TEST);$myOrders = [];
+        EprintProvider::initSoapClient($eprintUser, $eprintPassword, DPDFRANCE_DEV_USE_WS_TEST);
+        $myOrders = [];
 
         foreach ($listColis as $colis) {
             $order = new Order($colis['id_order']);
@@ -620,13 +660,17 @@ class AdminDPDFranceReturnController extends ModuleAdminController
             // Exclude orders that do not have a corresponding shop id or shop group id
             if ($isContextShop) {
                 // Context is a shop
-                if ($contextShopId !== (int)$order->id_shop || Shop::getGroupFromShop($contextShopId) !== (int)$order->id_shop_group) {
+                if ($contextShopId !== (int)$order->id_shop || Shop::getGroupFromShop(
+                        $contextShopId
+                    ) !== (int)$order->id_shop_group) {
                     continue;
                 }
             } else {
                 // Context is all shops or a group of shops
                 foreach ($contextShopId as $shopId) {
-                    if ($shopId !== (int)$order->id_shop || Shop::getGroupFromShop($shopId) !== (int)$order->id_shop_group) {
+                    if ($shopId !== (int)$order->id_shop || Shop::getGroupFromShop(
+                            $shopId
+                        ) !== (int)$order->id_shop_group) {
                         break;
                     }
                 }

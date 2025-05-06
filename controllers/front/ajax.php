@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -169,6 +169,13 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
             $idShopGroup,
             $idShop
         );
+
+        /*
+         * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+         * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+         * This fix avoids a timeout with max_input_time.
+         */
+        $dateStartScript = new DateTime();
 
         $predict_carrier_log = $classic_carrier_log = $relais_carrier_log = $predict_carrier_sql = $classic_carrier_sql = $relais_carrier_sql = '';
 
@@ -442,6 +449,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                         (int)$order->id_shop
                     );
 
+                    /*
+                     * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                     * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                     * This fix avoids a timeout with max_input_time.
+                     */
+                    if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                        echo 'Order [ id : ' . $order->id . ' | reference: ' . $order->reference . ' ] - was not updated in order to avoid a script timeout <br/>';
+                        break;
+                    }
+
                     // Récupère les identifiants du compte en relation à l'option de livraison de la commande actuelle
                     $serviceLivraisonInfos = DPDConfig::getServiceLivraisonInfos(
                         $service,
@@ -467,6 +484,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                         'Searchmode' => 'Equals',
                         'GetImages' => false,
                     ];
+
+                    /*
+                     * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                     * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                     * This fix avoids a timeout with max_input_time.
+                     */
+                    if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                        echo 'Order [ id : ' . $order->id . ' | reference: ' . $order->reference . ' ] - was not updated in order to avoid a script timeout <br/>';
+                        break;
+                    }
 
                     // Appel du webservice Webtrace pour récupérer les informations de la commande
                     try {
@@ -505,6 +532,15 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                                 if (!is_array($traces)) {
                                     // Le colis ne contient qu'un seul statut
                                     if (DPDTools::PASSTRHOUGHT_CEDI === false && $traces->StatusNumber === DPDTools::CARGO_CEDI) {
+                                        /*
+                                         * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                                         * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                                         * This fix avoids a timeout with max_input_time.
+                                         */
+                                        if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                                            echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                                            break;
+                                        }
                                         continue;
                                     }
                                     $statusList[$shipmentTrace[0]->ShipmentNumber][] = $traces->StatusNumber;
@@ -534,6 +570,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                                         'ShipmentNumber' => $parcelTrace->ShipmentNumber,
                                         'GetImages' => false,
                                     ];
+
+                                    /*
+                                     * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                                     * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                                     * This fix avoids a timeout with max_input_time.
+                                     */
+                                    if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                                        echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                                        break;
+                                    }
 
                                     $parcelDatas = WebtraceProvider::getShipmentTrace($datas);
 
@@ -571,6 +617,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                             continue;
                         }
 
+                        /*
+                         * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                         * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                         * This fix avoids a timeout with max_input_time.
+                         */
+                        if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                            echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                            break;
+                        }
+
                         // Affectation du flag de statut de livraison selon l'historique de statut de colis venant du webservice
                         $deliveryState = 0;
                         $cargoStatusEventTriggerForOnGoingDelivery = [
@@ -600,6 +656,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                         $url = null;
 
                         $orderCarrier = new OrderCarrier($order->getIdOrderCarrier());
+
+                        /*
+                         * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                         * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                         * This fix avoids a timeout with max_input_time.
+                         */
+                        if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                            echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                            break;
+                        }
 
                         // Ajout du suivi de commande si la commande n'en a pas
                         if (
@@ -670,6 +736,17 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                                 (int)$order->id_shop_group,
                                 (int)$order->id_shop
                             );
+
+                            /*
+                             * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                             * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                             * This fix avoids a timeout with max_input_time.
+                             */
+                            if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                                echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                                break;
+                            }
+
                             $history->changeIdOrderState(
                                 DPDConfig::get(
                                     'DPDFRANCE_ETAPE_LIVRE',
@@ -701,6 +778,17 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                                 (int)$order->id_shop_group,
                                 (int)$order->id_shop
                             );
+
+                            /*
+                             * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                             * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                             * This fix avoids a timeout with max_input_time.
+                             */
+                            if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                                echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                                break;
+                            }
+
                             $history->changeIdOrderState(
                                 DPDConfig::get(
                                     'DPDFRANCE_ETAPE_EXPEDIEE',
@@ -757,6 +845,16 @@ class DPDFranceAjaxModuleFrontController extends ModuleFrontController
                             echo $prefixLog . 'Parcel ' . $shipmentNumber . ' is handled by DPD <br/>';
                             continue;
                         }
+                        /*
+                         * The max_input_time value in the PHP configuration (time during which the script accepts to parse input data such as POST and GET),
+                         * is used if it is different from -1, otherwise it is the max_execution_time value. It is impossible to modify the max_input_time value.
+                         * This fix avoids a timeout with max_input_time.
+                         */
+                        if (DPDTools::getDiffDates($dateStartScript, new DateTime())) {
+                            echo $prefixLog . 'was not updated in order to avoid a script timeout <br/>';
+                            break;
+                        }
+
                         echo $prefixLog . 'No update for parcel ' . $shipmentNumber . ' <br/>';
                     } catch (SoapFault $e) {
                         echo $prefixLog . 'Error : ' . $e->getMessage() . '<br/>';

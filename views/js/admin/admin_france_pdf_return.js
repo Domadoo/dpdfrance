@@ -1,10 +1,10 @@
 /*!
  * DPD France - JavaScript
- * version: 1.0 (Mon, 23 AUT 2021)
+ * version: 2.0 (Mon, 28 JAN 2025)
  * @requires jQuery v1.6 or later
  *
  *
- * Copyright 2024 DPD France
+ * Copyright 2025 DPD France
  *
  */
 $(document).ready(function () {
@@ -125,7 +125,6 @@ $(document).ready(function () {
                 },
                 dataType: 'json',
                 success: function (data) {
-                    data = eval(data);
                     if (data == "true") {
                         location.reload();
                     } else {

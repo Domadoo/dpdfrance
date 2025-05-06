@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -36,6 +36,7 @@ use PrestaShop\Module\DPDFrance\ExternalContentProvider\PudoProvider;
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\LeadtimeProvider;
 use PrestaShop\Module\DPDFrance\Util\DPDCompliancy;
 use PrestaShop\Module\DPDFrance\Util\DPDConfig;
+use PrestaShop\Module\DPDFrance\Util\DPDLogs;
 use PrestaShop\Module\DPDFrance\Util\DPDTools;
 
 class DPDFrance extends CarrierModule
@@ -100,7 +101,7 @@ class DPDFrance extends CarrierModule
     {
         $this->name = 'dpdfrance';
         $this->tab = 'shipping_logistics';
-        $this->version = '6.4.1';
+        $this->version = '6.4.2';
         $this->author = 'DPD France S.A.S.';
         $this->module_key = '41c64060327b5afada101ff25bd38850';
         $this->need_instance = 1;
@@ -216,7 +217,11 @@ class DPDFrance extends CarrierModule
         ];
 
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -424,6 +429,7 @@ class DPDFrance extends CarrierModule
                 'DPD France retour',
                 Tab::getInstanceFromClassName('AdminParentOrders')->id
             )
+            && $this->initDPDLogs()
         ) {
             return true;
         }
@@ -433,6 +439,22 @@ class DPDFrance extends CarrierModule
         );
 
         return false;
+    }
+
+    /**
+     * Check the current prestashop & DPD France module version, log if updated
+     * @return bool
+     */
+    protected function initDPDLogs(): bool
+    {
+        try {
+            DPDLogs::getLastLog();
+            DPDLogs::checkVersion();
+        } catch (Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -449,7 +471,22 @@ class DPDFrance extends CarrierModule
             || !$this->registerHook('actionValidateOrder')
             || !$this->registerHook('displayCheckoutSummaryTop')
             || !$this->registerHook('displayPaymentTop')
+            || !$this->registerNewHooks()
         );
+    }
+
+    /**
+     * Register special hooks regulated by the prestashop version (isMyPrestashopVersion)
+     * The module is compatible with at least version 1.7.0.0, which means that some hooks used by the module may not exist
+     * @return bool
+     */
+    protected function registerNewHooks(): bool
+    {
+        if (DPDCompliancy::isMyPrestashopVersion('>', '8.0.0')) {
+            return $this->registerHook('actionFilterDeliveryOptionList');
+        }
+
+        return true;
     }
 
     /**
@@ -459,7 +496,11 @@ class DPDFrance extends CarrierModule
     protected function installDPDConfigurations(): bool
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $isContextShop = $shopInfo['isContextShop'];
         $contextShopId = $shopInfo['shopId'];
 
@@ -1227,6 +1268,7 @@ class DPDFrance extends CarrierModule
             return false;
         }
 
+        // Creation de la table dpdfrance_marketplace
         $sqlDPDMarketplace = '
             CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dpdfrance_marketplace` (
             `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1236,6 +1278,36 @@ class DPDFrance extends CarrierModule
             ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
 
         if (!Db::getInstance()->Execute($sqlDPDMarketplace)) {
+            return false;
+        }
+
+        // Creation de la table dpdfrance_module_logs
+        $sqlDPDModuleLogs = '
+            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dpdfrance_module_logs` (
+            `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `dpdfrance_module_version` VARCHAR(10) NOT NULL,
+            `prestashop_version` VARCHAR(10) NOT NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
+
+        if (!Db::getInstance()->Execute($sqlDPDModuleLogs)) {
+            return false;
+        }
+
+        // Creation de la table dpdfrance_full_logs
+        $sqlDPDFullLogs = '
+            CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'dpdfrance_full_logs` (
+            `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `id_dpdfrance_module_logs` INT(10) NOT NULL,
+            `param_name` VARCHAR(255) NOT NULL,
+            `old_param_value` VARCHAR(255),
+            `new_param_value` VARCHAR(255),
+            PRIMARY KEY (`id`)
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
+
+        if (!Db::getInstance()->Execute($sqlDPDFullLogs)) {
             return false;
         }
 
@@ -1486,7 +1558,11 @@ class DPDFrance extends CarrierModule
         $params = '';
 
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $isContextShop = $shopInfo['isContextShop'];
         $contextShopId = $shopInfo['shopId'];
         $currentShopId = $shopInfo['currentShopId'];
@@ -3072,6 +3148,7 @@ class DPDFrance extends CarrierModule
             'option_day_definite' => $optionDayDefinite,
             'option_vd' => $optionVd,
             'option_retour' => $optionRetour,
+            'tab_logs' => DPDLogs::getFullLog(),
             'form_submit_url' => $_SERVER['REQUEST_URI'],
         ]);
 
@@ -3091,6 +3168,7 @@ class DPDFrance extends CarrierModule
     {
         // Load CSS
         $css = [
+            $this->getCssPath() . 'admin/datatables.min.css',
             $this->getCssPath() . 'utils.css',
             $this->getCssPath() . 'admin/dpdfrance_config.css',
         ];
@@ -3103,6 +3181,7 @@ class DPDFrance extends CarrierModule
 
         // Load JS
         $jss = [
+            $this->getJsPath() . 'admin/datatables/datatables.min.js',
             $this->getJsPath() . 'admin/jquery/plugins/validation/jquery.validate.min.js',
             $this->getJsPath() . 'admin/admin_config.js',
         ];
@@ -3519,8 +3598,13 @@ class DPDFrance extends CarrierModule
 
         // DELETE PREVIOUS ENTRY IN DATABASE
         Db::getInstance()->delete('dpdfrance_shipping', 'id_cart = ' . (int)$cart->id);
+        $streetnum = $selectedRelaisDetails['street_num'] ?? '';
         $address1 = $selectedRelaisDetails['address1'] ?? '';
         $address2 = $selectedRelaisDetails['address2'] ?? '';
+        // Format the relais point address with the street number
+        if ($streetnum) {
+            $address1 = $streetnum . ' ' . $address1;
+        }
 
         // INSERT TO THE DATABASE
         $sqlResult = Db::getInstance()->insert(
@@ -3624,7 +3708,7 @@ class DPDFrance extends CarrierModule
                 ) : null),
                 'dpdfrance_relais_points' => (!isset($dpdfrance_relais_points['error']) ? $dpdfrance_relais_points : null),
                 'dpdfrance_selectedrelay' => $selectedRelay,
-                'dpdfrance_selectedRelayAddress' => $currentSearchAndRelaisList['relay_list'][$selectedRelay],
+                'dpdfrance_selectedRelayAddress' => (isset($selectedRelay) ? $currentSearchAndRelaisList['relay_list'][$selectedRelay] : null),
                 'dpdfrance_img_base_dir' => __PS_BASE_URI__ . 'modules/' . $this->name,
                 'dpdfrance_base_dir' => Context::getContext()->link->getModuleLink('dpdfrance', 'ajax'),
                 'dpdfrance_predict_gsm_dest' => (isset($deliveryInfos['gsm_dest']) ? $deliveryInfos['gsm_dest'] : $address->phone_mobile),
@@ -3671,9 +3755,39 @@ class DPDFrance extends CarrierModule
         $this->city = DPDTools::stripAccents($input['city']);
         $this->country = $this->context->country->iso_code;
 
-        // ! Zip code is MANDATORY
+        // Handle the case when no zip code was provided
         if (empty($this->zipcode)) {
             $dpdfrance_relais_points['error'] = $this->l('Postal code is missing in the address. Please, modify it.');
+
+            return $dpdfrance_relais_points;
+        }
+
+        // Handle the case when no webService DPD Relais url or key was provided
+        if (empty(
+        DPDConfig::get(
+            'DPDFRANCE_RELAIS_MYPUDO_URL',
+            $this->context->language->id,
+            (int)$this->context->shop->id_shop_group,
+            $this->context->shop->id
+        )
+        )) {
+            $dpdfrance_relais_points['error'] = $this->l(
+                'DPD Relais is not available at the moment, please verify the DPD Relais WebService url in the module configuration panel.'
+            );
+
+            return $dpdfrance_relais_points;
+        }
+        if (empty(
+        DPDConfig::get(
+            'DPDFRANCE_RELAIS_KEY',
+            $this->context->language->id,
+            (int)$this->context->shop->id_shop_group,
+            $this->context->shop->id
+        )
+        )) {
+            $dpdfrance_relais_points['error'] = $this->l(
+                'DPD Relais is not available at the moment, please verify the DPD Relais password in the module configuration panel.'
+            );
 
             return $dpdfrance_relais_points;
         }
@@ -3693,7 +3807,7 @@ class DPDFrance extends CarrierModule
             'requestID' => '1234',
             'request_id' => '1234',
             'date_from' => $currentDate,
-            'max_pudo_number' => '',
+            'max_pudo_number' => '20',
             'max_distance_search' => '',
             'weight' => '',
             'category' => '',
@@ -3702,7 +3816,7 @@ class DPDFrance extends CarrierModule
 
         try {
             ini_set('default_socket_timeout', 5);
-            // Handle the case when no webService DPD Relais url was provided
+            // Handle soap initialization errors for the webService DPD Relais
             if (PudoProvider::initSoapClient(
                     DPDConfig::get(
                         'DPDFRANCE_RELAIS_MYPUDO_URL',
@@ -3717,12 +3831,13 @@ class DPDFrance extends CarrierModule
             $pudoList = PudoProvider::getPudoList($pudoCallParams);
 
             if (Tools::strlen($pudoList->ERROR) > 0) {
+                // Handle specific errors for the webService DPD Relais (pudo error 312)
                 $dpdfrance_relais_points['error'] = (string)$pudoList->ERROR['code'] === '312' ?
                     $this->l(
-                    'DPD Relais is not available at the moment, please ensure that a city has been provided to search for new pickup points.'
-                ) : $this->l(
-                    'DPD Relais is not available at the moment, please try again shortly.'
-                );
+                        'DPD Relais is not available at the moment, please ensure that a city has been provided to search for new pickup points.'
+                    ) : $this->l(
+                        'DPD Relais is not available at the moment, please try again shortly.'
+                    );
             } else {
                 $relais_items = $pudoList->PUDO_ITEMS;
                 $relaisDatas['cartId'] = $this->context->cart->id;
@@ -3770,25 +3885,39 @@ class DPDFrance extends CarrierModule
                     }
 
                     // Customer in Corsica + island overcost set : exclude Pickup point if outside Corsica
-                    // Montant zone des iles supérieure à 0
+                    // Island zone amount greater than 0
                     if (DPDConfig::get(
                             'DPDFRANCE_SUPP_ILES',
                             $this->context->language->id,
                             (int)$this->context->shop->id_shop_group,
                             $this->context->shop->id
                         ) > 0) {
-                        // Si le code postal de l'adresse de livraison commence par 20 ?
+                        // If the delivery address zip code starts with 20 ?
                         if (Tools::substr($postcode, 0, 2) === '20') {
-                            // Si le code postal de l'adresse du point relais ne commence pas par 20 ?
+                            // If the relay address zip code does not begin with 20
                             if (Tools::substr($item['ZIPCODE'], 0, 2) !== '20') {
                                 continue;
                             }
                         } else {
                             // Customer outside Corsica + island overcost set : exclude Pickup point if inside Corsica
-                            // Si le code postal de l'adresse du point relais commence par 20 ?
+                            // If the relay address zip code starts with 20 ?
                             if (Tools::substr($item['ZIPCODE'], 0, 2) === '20') {
                                 continue;
                             }
+                        }
+                    }
+
+                    // Check If the country of the order and the Pickup point is the same, if not its excluded
+                    if (isset($item['COUNTRY'])) {
+                        $pickupIsoCode2 = DPDTools::ISO3_TO_ISO2[$item['COUNTRY']] ?? null;
+                        if ($pickupIsoCode2) {
+                            if ($this->country !== $pickupIsoCode2) {
+                                continue;
+                            }
+                        } else {
+                            $dpdfrance_relais_points['error'] =  $this->l(
+                                'DPD Relais is not available at the moment, please try again shortly.'
+                            );
                         }
                     }
 
@@ -3797,6 +3926,7 @@ class DPDFrance extends CarrierModule
                     $point['address1'] = !empty($item['ADDRESS1']) ? DPDTools::stripAccents($item['ADDRESS1']) : '';
                     $point['address2'] = !empty($item['ADDRESS2']) ? DPDTools::stripAccents($item['ADDRESS2']) : '';
                     $point['address3'] = !empty($item['ADDRESS3']) ? DPDTools::stripAccents($item['ADDRESS3']) : '';
+                    $point['street_num'] = !empty($item['STREETNUM']) ? DPDTools::stripAccents($item['STREETNUM']) : '';
                     $point['local_hint'] = !empty($item['LOCAL_HINT']) ? DPDTools::stripAccents(
                         $item['LOCAL_HINT']
                     ) : '';
@@ -3833,9 +3963,9 @@ class DPDFrance extends CarrierModule
                         ++$x;
                     }
 
-                    // insertion du point relais dans un tableau
+                    // Inserting the Pickup point in a table
                     $dpdfrance_relais_points[] = $point;
-                    // Affiche 5 relais
+                    // Display only 5 Pickup points
                     if (++$indexPickup === $pickupDisplayed) {
                         break;
                     }
@@ -3867,7 +3997,7 @@ class DPDFrance extends CarrierModule
             }
         } catch (Exception $e) {
             $dpdfrance_relais_points['error'] = $this->l(
-                'DPD Relais is not available at the moment, please verify the DPD Relais WebService url in the module configuration panel.'
+                'DPD Relais is not available at the moment, please try again shortly.'
             );
         }
 
@@ -3922,7 +4052,11 @@ class DPDFrance extends CarrierModule
         }
 
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext((int)$param['shop_context'], (int)$param['shop_group_id'], (int)$param['shop_id']);
+        $shopInfo = DPDTools::getContext(
+            (int)$param['shop_context'],
+            (int)$param['shop_group_id'],
+            (int)$param['shop_id']
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -4353,7 +4487,11 @@ class DPDFrance extends CarrierModule
         }
 
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext((int)$param['shop_context'], (int)$param['shop_group_id'], (int)$param['shop_id']);
+        $shopInfo = DPDTools::getContext(
+            (int)$param['shop_context'],
+            (int)$param['shop_group_id'],
+            (int)$param['shop_id']
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -4378,12 +4516,12 @@ class DPDFrance extends CarrierModule
             }
 
             try {
-                EprintProvider::webserviceStatus();
+                $statusMessageEprint = EprintProvider::webserviceStatus();
             } catch (Exception $e) {
                 $statusMessageEprint = $e->getMessage();
             }
 
-            if ($statusMessageEprint === 'Parcel not valid') {
+            if (is_bool($statusMessageEprint)) {
                 return true;
             }
         } elseif ($param['webservice_type'] === 'wp') {
@@ -4460,7 +4598,7 @@ class DPDFrance extends CarrierModule
                 $statusMessageWebtrace = $e->getMessage();
             }
 
-            if ($statusMessageWebtrace === null || $statusMessageWebtrace === 'Invalid return' || $statusMessageWebtrace === 'ShipmentNumber missing') {
+            if ($statusMessageWebtrace === null || is_bool($statusMessageWebtrace) || $statusMessageWebtrace === 'ShipmentNumber missing') {
                 return true;
             }
         }
@@ -4479,7 +4617,11 @@ class DPDFrance extends CarrierModule
     public function hookDisplayBackOfficeHeader(array $params)
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $currentShopId = $shopInfo['currentShopId'];
         $currentShopGroupId = $shopInfo['currentShopGroupId'];
 
@@ -4974,6 +5116,73 @@ class DPDFrance extends CarrierModule
                 );
 
                 return $this->display(__FILE__, 'views/templates/hook/payment_top.tpl');
+            }
+        }
+    }
+
+    /**
+     * [FRONT OFFICE] Upon carrier selection (order checkout process),
+     * we verify that the country code and zip code of the customer's address match DPD France's DOM/TOM consistency check.
+     * If it does not match, we remove DPD delivery options from the delivery option list
+     *
+     * @param array $params
+     * @return void
+     */
+    public function hookActionFilterDeliveryOptionList(array $params)
+    {
+        if ($params['cart']->id_address_delivery) {
+            if ($this->context->country->iso_code === 'FR') {
+                $customerAddress = new Address((int)$params['cart']->id_address_delivery);
+                if (
+                    preg_match('/^971/', $customerAddress->postcode) // Guadeloupe
+                    || preg_match('/^972/', $customerAddress->postcode) // Martinique
+                    || preg_match('/^973/', $customerAddress->postcode) // Guiana
+                    || preg_match('/^974/', $customerAddress->postcode) // Reunion
+                    || preg_match('/^975/', $customerAddress->postcode) // Miquelon
+                    || preg_match('/^976/', $customerAddress->postcode) // Mayotte
+                    || preg_match('/^978/', $customerAddress->postcode) // Martin
+                    || preg_match('/^986/', $customerAddress->postcode) // Wallis
+                    || preg_match('/^987/', $customerAddress->postcode) // Polynesia
+                    || preg_match('/^988/', $customerAddress->postcode) // Caledonia
+                ) {
+                    $deliveryOptionList = $params['delivery_option_list'];
+                    if (is_array($deliveryOptionList) && !empty($deliveryOptionList)) {
+                        foreach ($deliveryOptionList as $zoneId => $zoneCarrierList) {
+                            if (is_array($zoneCarrierList) && !empty($zoneCarrierList)) {
+                                foreach ($zoneCarrierList as $carrierId => $carrierList) {
+                                    if (!empty($carrierList['carrier_list'])) {
+                                        foreach ($carrierList['carrier_list'] as $carrier) {
+                                            if (!empty($carrier['instance'])) {
+                                                if (
+                                                    $carrier['instance']->id === DPDConfig::get(
+                                                        'DPDFRANCE_PREDICT_CARRIER_ID',
+                                                        $this->context->language->id,
+                                                        (int)$this->context->shop->id_shop_group,
+                                                        $this->context->shop->id
+                                                    )
+                                                    || $carrier['instance']->id === DPDConfig::get(
+                                                        'DPDFRANCE_RELAIS_CARRIER_ID',
+                                                        $this->context->language->id,
+                                                        (int)$this->context->shop->id_shop_group,
+                                                        $this->context->shop->id
+                                                    )
+                                                    || $carrier['instance']->id === DPDConfig::get(
+                                                        'DPDFRANCE_CLASSIC_CARRIER_ID',
+                                                        $this->context->language->id,
+                                                        (int)$this->context->shop->id_shop_group,
+                                                        $this->context->shop->id
+                                                    )
+                                                ) {
+                                                    unset($deliveryOptionList[$zoneId][$carrierId]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

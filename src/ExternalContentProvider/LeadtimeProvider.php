@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -132,6 +132,9 @@ class LeadtimeProvider
             if (curl_errno($leadtimeCurl) === 0) {
                 $leadtimeResponse = json_decode($leadtimeResponse);
                 if (isset($leadtimeResponse->message) && preg_match('/apiErrorList/', $leadtimeResponse->message)) {
+                    $state = true;
+                } elseif (isset($leadtimeResponse->error) && preg_match('/Invalid argument/', $leadtimeResponse->error)) {
+                    // If error message is "Invalid argument" then we know that the $leadtimeKey is valid
                     $state = true;
                 }
             }

@@ -1,13 +1,28 @@
 /*!
  * DPD France - JavaScript
- * version: 1.0 (Mon, 23 AUT 2021)
+ * version: 2.0 (Mon, 28 JAN 2025)
  * @requires jQuery v1.6 or later
  *
  *
- * Copyright 2021 DPD France
+ * Copyright 2025 DPD France
  *
  */
 $(document).ready(function () {
+    $('#mydatatab').DataTable(
+        {
+            'order': [],
+            //This fix (bAutoWidth) prevents Datatables from throwing a "ResizeObserver" type error
+            'bAutoWidth': false,
+            'layout': {
+                'topStart': null,
+                'topEnd': null,
+                'bottomStart': null,
+                'bottomEnd': 'paging',
+            },
+            'pagingType': 'simple_numbers',
+        }
+    );
+
     let connectionSetting = $('#mod_connect');
     let extensionFileSetting = $('#mod_format');
     let printFormatSetting = $('#print_format');
@@ -131,6 +146,7 @@ $(document).ready(function () {
             inputPrinterIp.removeAttr('disabled');
         }
     }
+
     let leadTimeDisplay = $('select[name="day_definite_mode"]').val();
     leadTimeDisplay === '1' ? $('#leadtime_config').show() : $('#leadtime_config').hide();
     $('body').on('change', 'select[name="day_definite_mode"]', function (e) {

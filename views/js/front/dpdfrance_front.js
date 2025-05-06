@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -17,7 +17,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -150,7 +150,7 @@ const openDpdFranceDialog = (id, mapid, lat, longti, baseurl) => {
  */
 const dpdFranceRelaisAjaxUpdate = (address, zipcode, city, action, dpdfrance_cart_id) => {
     if ((zipcode && action === 'search') || action === 'reset') {
-        let img = '<img src="' + dpdfrance_img_base_dir + '/views/img/front/relais/loader.gif" alt="loader"/>';
+        let img = '<img id="dpdfrance_reset_submit_loader" src="' + dpdfrance_img_base_dir + '/views/img/front/relais/loader.gif" alt="loader"/>';
         $('#dpdfrance_reset_submit').after(img);
         $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxUpdatePoints',
             {
@@ -317,7 +317,7 @@ const dpdfrance_registerGsm = phone => {
                 dataType: 'json',
                 error: function () {
                     dpdFranceHandleOrderButtonStatus(false);
-                    alert('Votre numéro de téléphone n\'a pas été sauvegardé, merci de rééssayer.');
+                    console.error('Votre numéro de téléphone n\'a pas été sauvegardé, merci de réessayer.');
                 }
             }
         );
@@ -625,7 +625,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /**
      * Handle relay points behavior on click (checkout payment step) and register default relau points delivery address
      */
-    document.querySelector('section#checkout-delivery-step').addEventListener('click', () => {
+    document.querySelector('#checkout-delivery-step').addEventListener('click', () => {
         if ($('#checkout-payment-step').hasClass('-current')) {
             dpdFranceCheckPudo('paymentReturn');
         }

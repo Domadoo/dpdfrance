@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -51,9 +51,14 @@ use stdClass;
  */
 class WebtraceProvider
 {
+    // Webservice Webtrace sur l'environnement de Production
     const WEBTRACE_URL_PROD = 'https://webtrace.dpd.fr/trace-service/Webtrace_Service.asmx?WSDL';
+    // Webservice Webtrace sur l'environnement de TEST pour réaliser des tests avec des colis "test"
     const WEBTRACE_URL_TEST = 'https://e-station-testenv.cargonet.software/trace-service/Webtrace_Service.asmx?WSDL';
+    // Webservice Webtrace sur l'ancien environnement de Production
     const WEBTRACE_URL_PROD_OLD = 'http://webtrace.dpd.fr/dpd-webservices/webtrace_service.asmx?WSDL';
+    // Attention, il existe un "/" pour Webtrace mais aucun pour Eprint
+    const WEBTRACE_HEADER_NAMESPACE = 'http://www.cargonet.software/';
 
     /**
      * @var SoapClient|null
@@ -134,7 +139,7 @@ class WebtraceProvider
             self::$auth->password = $password;
 
             // Dans la nouvelle version de Webtrace, l'authentification se fait dans le header de la requête SOAP
-            $header = new SoapHeader('http://www.cargonet.software/', 'UserCredentials', self::$auth, false);
+            $header = new SoapHeader(self::WEBTRACE_HEADER_NAMESPACE, 'UserCredentials', self::$auth, false);
 
             $soapClient->__setSoapHeaders($header);
         } catch (SoapFault $exception) {
@@ -288,7 +293,7 @@ class WebtraceProvider
 
     /**
      * Vérification de la configuration client (old ou new) et test de connexion, method : GetLastTrace & getShipmentTrace
-     * @return string|void
+     * @return mixed
      */
     public static function webserviceStatus()
     {
@@ -301,9 +306,25 @@ class WebtraceProvider
 
             return self::$soapClient->getShipmentTrace($oldParams)->getShipmentTraceResult->LastError;
         } else {
-            self::$soapClient->GetLastTrace([
+            // Un header SOAP doit être ajouté pour la méthode verifyConfiguration
+            $verifyUserCredentials = new stdClass();
+            $verifyUserCredentials->userid = self::$auth->userid;
+            $verifyUserCredentials->password = self::$auth->password;
+            $verifyUserCredentials->Verify_userid = self::$auth->userid;
+            $verifyUserCredentials->Verify_password = self::$auth->password;
+            $verifyConfigurationHeader = new SoapHeader(
+                self::WEBTRACE_HEADER_NAMESPACE,
+                'VerifyUserCredentials',
+                $verifyUserCredentials,
+                false
+            );
+            self::$soapClient->__setSoapHeaders($verifyConfigurationHeader);
+
+            return self::$soapClient->verifyConfiguration([
                 'request' => '',
-            ]);
+            ])
+                ->VerifyConfigurationResult
+                ->Allowed;
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -53,6 +53,8 @@ class EprintProvider
     const EPRINT_URL_PROD = 'https://e-station.cargonet.software/dpd-eprintwebservice/eprintwebservice.asmx?WSDL';
     // Webservice Eprint sur l'environnement de TEST pour réaliser des tests avec des colis "test"
     const EPRINT_URL_TEST = 'https://e-station-testenv.cargonet.software/eprintwebservice/eprintwebservice.asmx?WSDL';
+    // Attention, il existe un "/" pour Webtrace mais aucun pour Eprint
+    const EPRINT_HEADER_NAMESPACE = 'http://www.cargonet.software';
 
     /**
      * @var SoapClient|null
@@ -117,7 +119,7 @@ class EprintProvider
             self::$auth = new stdClass();
             self::$auth->userid = $user;
             self::$auth->password = $password;
-            $header = new SoapHeader('http://www.cargonet.software', 'UserCredentials', self::$auth, false);
+            $header = new SoapHeader(self::EPRINT_HEADER_NAMESPACE, 'UserCredentials', self::$auth, false);
             $soapClient->__setSoapHeaders($header);
         } catch (SoapFault $exception) {
             return false;
@@ -429,13 +431,29 @@ class EprintProvider
     }
 
     /**
-     * Vérification de la configuration client et test de connexion, method : getShipment
-     * @return void
+     * Vérification de la configuration client et test de connexion, méthode : verifyConfiguration
+     * @return mixed
      */
     public static function webserviceStatus()
     {
-        self::$soapClient->getShipment([
+        // Un header SOAP doit être ajouté pour la méthode verifyConfiguration
+        $verifyUserCredentials = new stdClass();
+        $verifyUserCredentials->userid = self::$auth->userid;
+        $verifyUserCredentials->password = self::$auth->password;
+        $verifyUserCredentials->Verify_userid = self::$auth->userid;
+        $verifyUserCredentials->Verify_password = self::$auth->password;
+        $verifyConfigurationHeader = new SoapHeader(
+            self::EPRINT_HEADER_NAMESPACE,
+            'VerifyUserCredentials',
+            $verifyUserCredentials,
+            false
+        );
+        self::$soapClient->__setSoapHeaders($verifyConfigurationHeader);
+
+        return self::$soapClient->verifyConfiguration([
             'request' => '',
-        ]);
+        ])
+            ->VerifyConfigurationResult
+            ->Allowed;
     }
 }

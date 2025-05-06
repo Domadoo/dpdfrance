@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -30,7 +30,7 @@ if (!defined('_PS_VERSION_')) {
 
 use Configuration;
 use Exception;
-use Hook;
+use PrestaShop\Module\DPDFrance\Util\DPDLogs;
 
 /**
  * Classe intermédiaire entre la classe Configuration de Prestashop et le module pour renvoyer
@@ -119,8 +119,6 @@ class DPDConfig
             default:
                 $value = Configuration::get($key, $idLang, $idShopGroup, $idShop, $default);
         }
-        
-        Hook::exec('actionGetDPDConfigAfter', ['key' => $key, 'value' => &$value]);
 
         return $value;
     }
@@ -211,6 +209,11 @@ class DPDConfig
             case 'DPDFRANCE_RELAIS_MYPUDO_URL':
             default:
                 $valueToUpdate = $value;
+        }
+
+        // On log la valeur uniquement si elle est différente de l'ancienne
+        if (Configuration::get($key) != $valueToUpdate) {
+            DPDLogs::setFullLog($key, Configuration::get($key), $valueToUpdate);
         }
 
         // On reconvertit la valeur en string pour coller à la table ps_configuration

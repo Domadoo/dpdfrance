@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2024 DPD France S.A.S.
+ * Copyright 2025 DPD France S.A.S.
  *
  * This file is a part of dpdfrance module for Prestashop.
  *
@@ -18,7 +18,7 @@
  * your needs please contact us at support.ecommerce@dpd.fr.
  *
  * @author    DPD France S.A.S. <support.ecommerce@dpd.fr>
- * @copyright 2024 DPD France S.A.S.
+ * @copyright 2025 DPD France S.A.S.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 if (!defined('_PS_VERSION_')) {
@@ -30,10 +30,10 @@ use PrestaShop\Module\DPDFrance\ExternalContentProvider\Transcription\Webtrace\c
 use PrestaShop\Module\DPDFrance\ExternalContentProvider\WebtraceProvider;
 use PrestaShop\Module\DPDFrance\Util\DPDCompliancy;
 use PrestaShop\Module\DPDFrance\Util\DPDConfig;
+use PrestaShop\Module\DPDFrance\Util\DPDLogs;
 use PrestaShop\Module\DPDFrance\Util\DPDPdfMerger;
 use PrestaShop\Module\DPDFrance\Util\DPDStation;
 use PrestaShop\Module\DPDFrance\Util\DPDTools;
-use Hook;
 
 class AdminDPDFranceController extends ModuleAdminController
 {
@@ -51,6 +51,10 @@ class AdminDPDFranceController extends ModuleAdminController
         $this->display = 'view';
         $this->meta_title = 'Gestion des expéditions';
         $this->dirPdf = DPDFRANCE_PDF_FOLDER_PATH;
+
+        // Check the current prestashop & DPD France module version, log if updated
+        DPDLogs::getLastLog();
+        DPDLogs::checkVersion();
 
         if (!$this->module->active) {
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
@@ -152,7 +156,11 @@ class AdminDPDFranceController extends ModuleAdminController
     public function renderView()
     {
         // Prepare the module context if the shop has the multistore enabled
-        $shopInfo = DPDTools::getContext(Shop::getContext(), $this->context->shop->getContextShopGroupID(), $this->context->shop->getContextShopID());
+        $shopInfo = DPDTools::getContext(
+            Shop::getContext(),
+            $this->context->shop->getContextShopGroupID(),
+            $this->context->shop->getContextShopID()
+        );
         $isContextShop = $shopInfo['isContextShop'];
         $contextShopId = $shopInfo['shopId'];
         $currentShopId = $shopInfo['currentShopId'];
@@ -823,12 +831,26 @@ class AdminDPDFranceController extends ModuleAdminController
         // Retrieve orders with the module context
         if ($isContextShop) {
             // Context is a shop
-            $orders = DPDTools::getAllOrders($this->context->language->id, Shop::getGroupFromShop($contextShopId), $contextShopId);
+            $orders = DPDTools::getAllOrders(
+                $this->context->language->id,
+                Shop::getGroupFromShop($contextShopId),
+                $contextShopId
+            );
         } else {
             // Context is all shops or a group of shops
             foreach ($contextShopId as $shopId) {
-                if (!empty(DPDTools::getAllOrders($this->context->language->id, Shop::getGroupFromShop($shopId), $shopId))) {
-                    $orders[] = DPDTools::getAllOrders($this->context->language->id, Shop::getGroupFromShop($shopId), $shopId);
+                if (!empty(
+                DPDTools::getAllOrders(
+                    $this->context->language->id,
+                    Shop::getGroupFromShop($shopId),
+                    $shopId
+                )
+                )) {
+                    $orders[] = DPDTools::getAllOrders(
+                        $this->context->language->id,
+                        Shop::getGroupFromShop($shopId),
+                        $shopId
+                    );
                 }
                 if ($orders && count($orders) > 1) {
                     $orders = array_merge($orders[0], $orders[1]);
@@ -1037,11 +1059,6 @@ class AdminDPDFranceController extends ModuleAdminController
             }
         }
 
-        $custom_carriers_sql = Hook::exec('actionDPDfranceCustomCarrierSql', []);
-        if(is_array($custom_carriers_sql)) {
-            $custom_carrier_sql = 'CA.id_carrier IN (' . implode(',', $custom_carriers_sql) . ') ';
-        }
-
         if (!empty($orders)) {
             $sql = 'SELECT  O.id_order,
                             O.id_cart,
@@ -1061,7 +1078,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             C.id_customer         = O.id_customer AND
                             CL.id_country         = AD.id_country AND
                             CA.id_carrier         = O.id_carrier AND
-                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . $custom_carrier_sql . ')
+                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . ')
                     AND     (' . $liste_expeditions . ')
                     ORDER BY id_order DESC';
 
@@ -1227,6 +1244,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             (int)$order->id_shop_group,
                             (int)$order->id_shop
                         ) !== DPDTools::NO_RETURN ? 'checked="checked"' : ''),
+                        'retour_authorized' => in_array($countrys[0]['iso_code'], DPDTools::RETURN_EXPORT_COUNTRIES, true) ? true : false,
                         'statut' => $current_state_name,
                         'depot_code' => sprintf('%03d', $serviceLivraisonInfos['depot_code']),
                         'shipper_code' => $serviceLivraisonInfos['shipper_code'],
