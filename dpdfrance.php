@@ -101,7 +101,7 @@ class DPDFrance extends CarrierModule
     {
         $this->name = 'dpdfrance';
         $this->tab = 'shipping_logistics';
-        $this->version = '6.4.2';
+        $this->version = '6.4.4';
         $this->author = 'DPD France S.A.S.';
         $this->module_key = '41c64060327b5afada101ff25bd38850';
         $this->need_instance = 1;
@@ -330,31 +330,7 @@ class DPDFrance extends CarrierModule
             }
         } else {
             //Check des suppléments Iles européennes
-            if (in_array($postCode, DPDTools::EUROPE_ZONE, true)) {
-                $shipping_cost += DPDConfig::get(
-                    'DPDFRANCE_SUPP_EUROPE',
-                    $this->context->language->id,
-                    (int)$this->context->shop->id_shop_group,
-                    $this->context->shop->id
-                );
-                if (DPDConfig::get(
-                        'DPDFRANCE_SUPP_EUROPE',
-                        $this->context->language->id,
-                        (int)$this->context->shop->id_shop_group,
-                        $this->context->shop->id
-                    ) < 0) {
-                    return false;
-                }
-            }
-
-            if (
-                //Test du CP pour Espagne et Italie
-                preg_match('/\b(07[0-9][0-9][0-9])\b/i', $postCode)
-                //Test du CP pour Italie
-                || preg_match('/\b(9[0-8][0-9][0-9][0-9])\b/i', $postCode)
-                //Test du CP pour Portugal
-                || preg_match('/\b(9[0-9][0-9][0-9][0-9][0-9][0-9])\b/i', $postCode)
-            ) {
+            if (DPDTools::checkShippingEuropeanOvercost($isoCode, $postCode)) {
                 $shipping_cost += DPDConfig::get(
                     'DPDFRANCE_SUPP_EUROPE',
                     $this->context->language->id,
@@ -3621,7 +3597,7 @@ class DPDFrance extends CarrierModule
                 'postcode' => pSQL($selectedRelaisDetails['postal_code']),
                 'city' => pSQL($selectedRelaisDetails['city']),
                 'id_country' => pSQL($selectedRelaisDetails['id_country']),
-                'gsm_dest' => isset($customerGsm) ? pSQL($customerGsm) : '',
+                'gsm_dest' => pSQL($customerGsm),
             ],
             false,
             true,

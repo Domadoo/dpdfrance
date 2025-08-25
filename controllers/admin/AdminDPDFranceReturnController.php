@@ -290,7 +290,7 @@ class AdminDPDFranceReturnController extends ModuleAdminController
                     case 'REL':
                         $type = 'Relais<img src="../modules/dpdfrance/views/img/admin/service_relais.png" title="Relais" alt="relais"/>';
                         $relay_id = '';
-                        preg_match('/(P|[a-z]{2})\d{5}/i', $address->company, $matches, PREG_OFFSET_CAPTURE);
+                        preg_match('/(P|[a-z]{2})(?=[A-Z0-9]{5,10})(?=[A-Z0-9]*\d)[A-Z0-9]{5,10}/i', $address->company, $matches, PREG_OFFSET_CAPTURE);
                         if ($matches) {
                             $relay_id = $matches[0][0];
                         }

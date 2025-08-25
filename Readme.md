@@ -19,6 +19,7 @@ The extension can also update orders statuses in mass.
 
 - **Be a DPD customer** and be in possession of your contract numbers through your DPD sales representative.
 - The **PHP SOAP & XML & CURL** extensions must be active on your server.
+- The following configuration (Traffic and SEO > URL configuration): **Simplified URL**, must be active on your store.
 
 For technical support on this extension, or to become an DPD customer, please [contact us](https://contact.dpd.fr/en/contact-us).
 
@@ -44,6 +45,7 @@ Le module permet également de mettre à jour en masse le statut des commandes t
 
 - **Etre client DPD** et avoir obtenu vos numéros de contrat auprès de votre Attaché Commercial
 - Activer les extensions **PHP SOAP & XML & CURL** sur votre serveur
+- Activer la configuration suivante dans votre boutique (Trafic et SEO > Configuration des URL) : **URL simplifiée**
 
 
 Pour toute question relative à l'intégration du module, ou pour devenir client DPD : [contactez-nous](https://contact.dpd.fr/fr/nous-contacter).

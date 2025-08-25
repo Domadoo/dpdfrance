@@ -546,70 +546,82 @@ class DPDTools
     ];
 
     /**
-     * Liste des codes postaux en zone Iles européennes
+     * Liste des expressions régulières et codes postaux en zone Iles européennes
      */
     const EUROPE_ZONE = [
-        '30123',
-        '18010',
-        '18020',
-        '18030',
-        '18040',
-        '18050',
-        '70017',
-        '70100',
-        '70200',
-        '70300',
-        '70400',
-        '72051',
-        '72053',
-        '72056',
-        '72057',
-        '72058',
-        '72059',
-        '72100',
-        '72300',
-        '72400',
-        '73014',
-        '73100',
-        '73200',
-        '73400',
-        '74000',
-        '74100',
-        '80100',
-        '81113',
-        '81200',
-        '81300',
-        '81401',
-        '82100',
-        '82104',
-        '82200',
-        '82300',
-        '83104',
-        '83200',
-        '84002',
-        '84003',
-        '84005',
-        '84010',
-        '84100',
-        '84201',
-        '84302',
-        '84401',
-        '84500',
-        '84600',
-        '84702',
-        '84801',
-        '84804',
-        '85002',
-        '85109',
-        '85111',
-        '85200',
-        '85300',
-        '85303',
-        '85401',
-        '85500',
-        '85600',
-        '85700',
-        '85800',
+        'ES' => [
+            '/\b(07[0-9][0-9][0-9])\b/i',
+        ],
+        'IT' => [
+            '/\b(07[0-9][0-9][0-9])\b/i',
+            '/\b(9[0-8][0-9][0-9][0-9])\b/i',
+            '30123',
+        ],
+        'PT' => [
+            '/\b(9[0-9][0-9][0-9]-[0-9][0-9][0-9])\b/i',
+        ],
+        'GR' => [
+            '18010',
+            '18020',
+            '18030',
+            '18040',
+            '18050',
+            '70017',
+            '70100',
+            '70200',
+            '70300',
+            '70400',
+            '72051',
+            '72053',
+            '72056',
+            '72057',
+            '72058',
+            '72059',
+            '72100',
+            '72300',
+            '72400',
+            '73014',
+            '73100',
+            '73200',
+            '73400',
+            '74000',
+            '74100',
+            '80100',
+            '81113',
+            '81200',
+            '81300',
+            '81401',
+            '82100',
+            '82104',
+            '82200',
+            '82300',
+            '83104',
+            '83200',
+            '84002',
+            '84003',
+            '84005',
+            '84010',
+            '84100',
+            '84201',
+            '84302',
+            '84401',
+            '84500',
+            '84600',
+            '84702',
+            '84801',
+            '84804',
+            '85002',
+            '85109',
+            '85111',
+            '85200',
+            '85300',
+            '85303',
+            '85401',
+            '85500',
+            '85600',
+            '85700',
+            '85800',
+        ],
     ];
 
     // ISO CODE
@@ -1065,6 +1077,34 @@ class DPDTools
         }
 
         return true;
+    }
+
+    /**
+     * Check if an order is eligible to european islands overcost
+     * @param string $deliveryCountry
+     * @param string $deliveryZipCode
+     * @return bool
+     */
+    public static function checkShippingEuropeanOvercost(string $deliveryCountry, string $deliveryZipCode): bool
+    {
+        $overcostCompatibility = false;
+        $overcostRules = DPDTools::EUROPE_ZONE[$deliveryCountry] ?? null;
+        if ($overcostRules) {
+            if ($deliveryCountry === 'GR') {
+                // Check for all zip codes only if the delivery country is Greece
+                return in_array($deliveryZipCode, $overcostRules, true);
+            } else {
+                foreach ($overcostRules as $overcostRule) {
+                    if (is_numeric($overcostRule) && $overcostRule === $deliveryZipCode) {
+                        $overcostCompatibility = true;
+                    } elseif (!is_numeric($overcostRule) && preg_match($overcostRule, $deliveryZipCode)) {
+                        $overcostCompatibility = true;
+                    }
+                }
+            }
+        }
+
+        return $overcostCompatibility;
     }
 
     /**
@@ -1531,6 +1571,7 @@ class DPDTools
             case 'SK':
             case 'SE':
             case 'CA':
+            case 'NL':
                 $newCp = str_replace(' ', '', $cp);
                 break;
             default:

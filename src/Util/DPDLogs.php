@@ -64,7 +64,7 @@ class DPDLogs
         $sqlLastLog->select('*')
             ->from('dpdfrance_module_logs')
             ->where('id = (SELECT MAX(last.id) FROM ' . _DB_PREFIX_ . 'dpdfrance_module_logs last)');
-        $executeLastLog = DB::getInstance()->executeS($sqlLastLog);
+        $executeLastLog = Db::getInstance()->executeS($sqlLastLog);
         if (count($executeLastLog) === 0) {
             $logInserted = self::setLog($dpdfranceModuleVersion);
             if ($logInserted === true) {

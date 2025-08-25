@@ -59,11 +59,11 @@ function upgrade_module_6_1_4()
     }
 
     // Intégration de GEOLABEL
-    DB::getInstance()->execute(
+    Db::getInstance()->execute(
         'ALTER TABLE `' . _DB_PREFIX_ . 'dpdfrance_order` CHANGE `id_shipment_number_dpd` `id_shipment_number_dpd` '
         . 'VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL'
     );
-    DB::getInstance()->execute(
+    Db::getInstance()->execute(
         'ALTER TABLE `' . _DB_PREFIX_ . 'dpdfrance_order` CHANGE `id_retour_order_dpd` `id_retour_order_dpd` '
         . 'VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL'
     );

@@ -56,7 +56,7 @@ function upgrade_module_6_1_1()
         'return_print' => true,
     ];
     $sql = 'DESCRIBE  ' . _DB_PREFIX_ . 'dpdfrance_order';
-    $results = DB::getInstance()->executeS($sql);
+    $results = Db::getInstance()->executeS($sql);
 
     foreach ($results as $field) {
         if ($fields[$field['Field']]) {
@@ -71,7 +71,7 @@ function upgrade_module_6_1_1()
                 $sql .= ' NOT NULL';
             }
 
-            DB::getInstance()->execute($sql);
+            Db::getInstance()->execute($sql);
         }
     }
 

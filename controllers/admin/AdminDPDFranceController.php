@@ -699,7 +699,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             );
                             $relay_id = '';
                             preg_match(
-                                '/(P|[a-z]{2})\d{5}/i',
+                                '/(P|[a-z]{2})(?=[A-Z0-9]{5,10})(?=[A-Z0-9]*\d)[A-Z0-9]{5,10}/i',
                                 $address_delivery->company,
                                 $matches,
                                 PREG_OFFSET_CAPTURE
@@ -1059,12 +1059,6 @@ class AdminDPDFranceController extends ModuleAdminController
             }
         }
 
-
-        $custom_carriers_sql = Hook::exec('actionDPDfranceCustomCarrierSql', []);
-        if(!empty($custom_carriers_sql)) {
-            $custom_carrier_sql = 'CA.id_carrier IN (' . implode(',', $custom_carriers_sql) . ') ';
-        }
-
         if (!empty($orders)) {
             $sql = 'SELECT  O.id_order,
                             O.id_cart,
@@ -1084,7 +1078,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             C.id_customer         = O.id_customer AND
                             CL.id_country         = AD.id_country AND
                             CA.id_carrier         = O.id_carrier AND
-                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . $custom_carrier_sql . ')
+                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . ')
                     AND     (' . $liste_expeditions . ')
                     ORDER BY id_order DESC';
 
@@ -1176,7 +1170,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             $type = 'Relais<img src="../modules/dpdfrance/views/img/admin/service_relais.png" title="Relais" alt="relais"/>';
                             $relay_id = '';
                             preg_match(
-                                '/(P|[a-z]{2})\d{5}/i',
+                                '/(P|[a-z]{2})(?=[A-Z0-9]{5,10})(?=[A-Z0-9]*\d)[A-Z0-9]{5,10}/i',
                                 $address_delivery->company,
                                 $matches,
                                 PREG_OFFSET_CAPTURE
@@ -1661,7 +1655,7 @@ class AdminDPDFranceController extends ModuleAdminController
 
                     // Retrieve the id of the world carrier (SQL select may be incorrect due to back office carrier change name function)
                     $sqlGetWorldCarrierId = 'SELECT id_carrier FROM ' . _DB_PREFIX_ . "carrier WHERE name = 'Livraison internationale par DPD';";
-                    $result = db::getInstance()->executeS($sqlGetWorldCarrierId);
+                    $result = Db::getInstance()->executeS($sqlGetWorldCarrierId);
 
                     $carrierWorldId = (!empty($result) ? $result[0]['id_carrier'] : null);
 

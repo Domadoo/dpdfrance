@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.4.4] - 2025
+
+- Amélioration de la gestion de certains codes postaux lors de la génération d'une étiquette.
+- Mise à jour de la documentation du module.
+
+## [6.4.3] - 2025
+
+- Amélioration de la détection des identifiants PUDO pour les points relais (gestion du nouveau type au format AN10).
+- Amélioration de la gestion des informations du destinataire lors de l'affichage des options de livraison DPD France.
+- Correction et amélioration de la configuration des iles Européennes.
+- Ajustement, selon le validateur Prestashop, de certains fichiers PHP utilisés dans le module.
+
 ## [6.4.2] - 2025
 
 - Suppression des returns types (dans la gestion des logs) car impossible de gérer les nulls avant PHP8.

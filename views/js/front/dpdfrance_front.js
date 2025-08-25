@@ -540,7 +540,8 @@ const dpdfranceUpdateShipping = () => {
  *  Handle display block of lead time delivery option in the checkout page
  */
 const dpdFranceDisplayLeadtime = () => {
-    let selectedAddressId = $("article.address-item.selected").find('input[name=id_address_delivery]').val();
+    //This fix (the modified js selector 'selectedAddressId') prevents potential conflicts with a prestashop theme
+    let selectedAddressId = $("article.address-item").find('input[name=id_address_delivery][checked]').val();
     let response = '';
 
     $.ajax(dpdfrance_base_dir + '?action_ajax_dpdfrance=ajaxGetLeadtime',
@@ -655,7 +656,8 @@ document.addEventListener("DOMContentLoaded", () => {
          */
         let gsmNumbersFormatValidation = new RegExp(/^[\+]?[(]?[0-9]{0,3}[)]?[-\s\.]?[0-9]{0,3}[-\s\.]?[0-9]+$/, 'im');
         let gsmBasicFormatValidation = new RegExp(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}$/, 'im');
-        let selectedAddressId = $("article.address-item.selected").find('input[name=id_address_delivery]').val();
+        //This fix (the modified js selector 'selectedAddressId') prevents potential conflicts with a prestashop theme
+        let selectedAddressId = $("article.address-item").find('input[name=id_address_delivery][checked]').val();
         let predictGsmButton = $("#dpdfrance_predict_gsm_button");
         let predictError = $("#dpdfrance_predict_error");
         let gsmFormatError = false;
@@ -670,7 +672,7 @@ document.addEventListener("DOMContentLoaded", () => {
                      * The validation process continues only if the shipping method is predict
                      */
                     let gsmShippingMethod = $("input[name*='delivery_option[']:checked");
-                    //Check if the selected input element exist
+                    //Check if the selected input element exists
                     if (gsmShippingMethod.length === 0) {
                         console.log("Veuillez sélectionner une methode de livraison");
                     } else {
