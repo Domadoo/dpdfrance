@@ -1059,6 +1059,11 @@ class AdminDPDFranceController extends ModuleAdminController
             }
         }
 
+        $custom_carriers_sql = Hook::exec('actionDPDfranceCustomCarrierSql', []);
+        if(!empty($custom_carriers_sql)) {
+            $custom_carrier_sql = 'CA.id_carrier IN (' . implode(',', $custom_carriers_sql) . ') ';
+        }
+
         if (!empty($orders)) {
             $sql = 'SELECT  O.id_order,
                             O.id_cart,
@@ -1078,7 +1083,7 @@ class AdminDPDFranceController extends ModuleAdminController
                             C.id_customer         = O.id_customer AND
                             CL.id_country         = AD.id_country AND
                             CA.id_carrier         = O.id_carrier AND
-                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . ')
+                            (' . $predict_carrier_sql . $classic_carrier_sql . $relais_carrier_sql . $opt_marketplace_sql . $custom_carrier_sql . ')
                     AND     (' . $liste_expeditions . ')
                     ORDER BY id_order DESC';
 
